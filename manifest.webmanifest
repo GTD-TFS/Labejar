@@ -2,7 +2,7 @@
   "name": "LABEJAR",
   "short_name": "LABEJAR",
   "description": "Herramienta offline/IA-online para filiaciones y comparecencia GPT",
-  "start_url": "/Labejar/Fil.cleaned.html",
+  "start_url": "/Labejar/index.html",
   "scope": "/Labejar/",
   "display": "standalone",
   "orientation": "portrait",
