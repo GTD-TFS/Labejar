@@ -1,16 +1,18 @@
 <!doctype html>
 <html lang="es">
 <head>
-<link rel="manifest" href="./manifest.webmanifest">
+  <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0b1220">
-<!-- iOS (Safari): no usa bien el manifest, necesita estos meta + icon -->
+
+<!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="DECLARATRON">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DECLARATRON</title>
+<meta name="apple-mobile-web-app-title" content="LABEJAR">
+
+<link rel="apple-touch-icon" href="./abeja.png">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LABEJAR🐝</title>
 <style>
 :root{
   --bg:#0a0f18;
@@ -150,10 +152,13 @@ h1#btnClearFromHeader{cursor:pointer;user-select:none;}
 #gptComparecencia:hover{border-color:rgba(43,111,232,.75)}
 
 #addFiliacion{
-  border-color:rgba(34,197,123,.45);
-  background:linear-gradient(135deg, rgba(34,197,123,.10), rgba(34,197,123,.05));
+  border-color:rgba(255,159,10,.55);
+  background:linear-gradient(135deg, rgba(255,159,10,.14), rgba(255,159,10,.06));
 }
-#addFiliacion:hover{border-color:rgba(34,197,123,.70)}
+#addFiliacion:hover{
+  border-color:rgba(255,159,10,.80);
+  background:linear-gradient(135deg, rgba(255,159,10,.18), rgba(255,159,10,.08));
+}
 
 #clearForm{
   border-color:rgba(255,86,86,.45);
@@ -203,7 +208,7 @@ input.invalid,select.invalid{border-color:var(--red)!important}
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.60);z-index:9999;padding:16px;}
 .modal.open{display:flex;}
 .modal .panel{width:min(520px,96vw);background:rgba(11,18,32,.92);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);backdrop-filter:blur(10px);}
-.modal .panel h2{margin:0 0 10px;font-size:16px;color:var(--fg)}
+.modal .panel h2{margin:0 0 10px;font-size:16px;color:var(--fg); text-align:left}
 .modal .panel .fields2{display:grid;gap:10px;grid-template-columns:1fr;}
 @media(min-width:520px){.modal .panel .fields2{grid-template-columns:1fr 1fr;}}
 .modal .panel .span2{grid-column:1/-1;}
@@ -253,14 +258,28 @@ input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !import
 <div><label>Teléfono</label><input id="Telefono" inputmode="numeric" pattern="[0-9 ]*"></div>
 <div><label>Nombre</label><input id="Nombre"></div>
 <div><label>Apellidos</label><input id="Apellidos"></div>
-<div><label>Tipo de documento</label><input id="Tipo"></div>
+<div>
+  <label>Tipo de documento</label>
+  <select id="Tipo">
+    <option></option>
+    <option>DNI</option>
+    <option>NIE</option>
+    <option>PASAPORTE</option>
+    <option>Indocumentado</option>
+    <option>Carta Nacional de Identidad</option>
+    <option>Otro Documento de Identidad</option>
+  </select>
+</div>
 <div><label>Nº documento</label><input id="Numero"></div>
 <div><label>Sexo</label>
 <select id="Sexo"><option></option><option>MASCULINO</option><option>FEMENINO</option></select>
 </div>
 <div><label>Nacionalidad</label><input id="Nacionalidad"></div>
 <div class="span2"><label>Nombre de los Padres</label><input id="Padres"></div>
-<div><label>Fecha de nacimiento</label><input id="Nacimiento"></div>
+<div>
+  <label>Fecha de nacimiento</label>
+  <input id="Nacimiento" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" autocomplete="bday">
+</div>
 <div><label>Lugar de nacimiento</label><input id="Lugar"></div>
 <div class="span2"><label>Domicilio</label><input id="Domicilio"></div>
 <!-- 3) LISTA / CONTADOR / AGREGAR -->
@@ -477,6 +496,7 @@ if(p["Tipo de documento"]!=null) document.getElementById('Tipo').value = p["Tipo
 if(p["Nº Documento"]!=null) document.getElementById('Numero').value = p["Nº Documento"];
 if(p.Sexo!=null) document.getElementById('Sexo').value = p.Sexo;
 if(p.Nacionalidad!=null) document.getElementById('Nacionalidad').value = p.Nacionalidad;
+if (natElFix && /^españa$/i.test(natElFix.value.trim())) natElFix.value='España';
 if(p["Nombre de los Padres"]!=null) document.getElementById('Padres').value = p["Nombre de los Padres"];
 if(p["Fecha de nacimiento"]!=null) document.getElementById('Nacimiento').value = p["Fecha de nacimiento"];
 if(p["Lugar de nacimiento"]!=null) document.getElementById('Lugar').value = p["Lugar de nacimiento"];
@@ -496,15 +516,28 @@ enforceCanonicalNacionalidad();
 enforceCanonicalLugarYDomicilio();
 validateAll();
 }
+function clearFormFieldsOnly(){
+  ["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
+  .forEach(id=>{
+    const el=document.getElementById(id);
+    if (el){
+      el.value="";
+      el.classList.remove('uncertain','valid','invalid');
+      el.dataset.touched = "0";
+    }
+  });
+
+  const ta = document.getElementById('Doc');
+  if (ta){
+    ta.value = "";
+  }
+}
+
 function clearFormOnly(){
-["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
-.forEach(id=>{
-const el=document.getElementById(id);
-if (el){ el.value=""; el.classList.remove('uncertain'); }
-});
-const ta = document.getElementById('Doc');
-if (ta) ta.value = "";
-updateCount(); validateAll();
+  clearFormFieldsOnly();
+  // Vaciar también las filiaciones agregadas
+  expediente.filiaciones = [];
+  updateCount();
 }
 function processOCR(ocr){
 if(!ocr.trim()){ alert("Portapapeles vacío. Copia el OCR primero."); return; }
@@ -557,40 +590,176 @@ condEl.classList.add('valid');
 }
 expediente.filiaciones.push(f);
 updateCount();
-clearFormOnly();
+clearFormFieldsOnly();
 });
 document.getElementById('btnClearFromHeader')?.addEventListener('click', clearFormOnly);
 document.getElementById('Doc').addEventListener('input', (e)=>{ expediente.doc = e.target.value; });
+const natElFix = document.getElementById('Nacionalidad');
+if (natElFix){ const fix=()=>{ if (/^españa$/i.test(natElFix.value.trim())) natElFix.value='España'; }; natElFix.addEventListener('input', fix); natElFix.addEventListener('change', fix); natElFix.addEventListener('blur', fix); }
 const btnDownload = document.getElementById('download');
+
+// === AES-GCM (compat CompaSC loadEncrypted): base64( salt[16] + iv[12] + ciphertext ) ===
+const __enc = new TextEncoder();
+const __dec = new TextDecoder();
+function bufToB64(buf){ const bytes=new Uint8Array(buf); let bin=""; for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]); return btoa(bin); }
+function b64ToBuf(b64){ const bin=atob((b64||"").trim()); const len=bin.length; const bytes=new Uint8Array(len); for(let i=0;i<len;i++) bytes[i]=bin.charCodeAt(i); return bytes.buffer; }
+function concatBytes(a,b,c){
+  const al=a.length, bl=b.length, cl=c.length;
+  const out=new Uint8Array(al+bl+cl);
+  out.set(a,0); out.set(b,al); out.set(c,al+bl);
+  return out;
+}
+async function deriveKeyFromPassphraseEncrypt(pass, salt){
+  const baseKey=await crypto.subtle.importKey("raw", __enc.encode(pass),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    {name:"PBKDF2",salt,iterations:200000,hash:"SHA-256"},
+    baseKey,
+    {name:"AES-GCM",length:256},
+    false,
+    ["encrypt"]
+  );
+}
+async function encryptJSON(obj, passphrase){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await deriveKeyFromPassphraseEncrypt(passphrase, salt);
+  const plain=__enc.encode(JSON.stringify(obj));
+  const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv}, key, plain);
+  const packed=concatBytes(salt, iv, new Uint8Array(cipher));
+  return bufToB64(packed.buffer);
+}
+
+// === Password modal + optional OS password manager integration ===
+const PASS_CRED_ID = "compasc";
+let __lastPass = "";
+
+async function tryGetSavedPassword(){
+  try{
+    if (!navigator.credentials || !navigator.credentials.get) return "";
+    const cred = await navigator.credentials.get({ password:true, mediation:"optional" });
+    if (cred && cred.password) return String(cred.password);
+  }catch(_){ }
+  return "";
+}
+
+async function storePasswordWithOS(pass){
+  try{
+    if (!navigator.credentials || !navigator.credentials.store || !window.PasswordCredential) return false;
+    const fd = new FormData();
+    fd.set('id', PASS_CRED_ID);
+    fd.set('name', 'Compasc');
+    fd.set('password', pass);
+    const cred = new PasswordCredential(fd);
+    await navigator.credentials.store(cred);
+    return true;
+  }catch(_){ return false; }
+}
+
+function openPassModal(){
+  const modal = document.getElementById('passModal');
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  const inp = document.getElementById('passInput');
+  const chk = document.getElementById('passRemember');
+  if (inp) inp.value = __lastPass || '';
+  if (chk) chk.checked = true;
+  setTimeout(()=>{ inp?.focus(); }, 0);
+}
+function closePassModal(){
+  const modal = document.getElementById('passModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+}
+
+async function askPassphraseForSave(){
+  // Intentar recuperar del gestor de contraseñas del dispositivo (si existe)
+  if (!__lastPass){
+    const saved = await tryGetSavedPassword();
+    if (saved) __lastPass = saved;
+  }
+
+  return new Promise((resolve)=>{
+    const modal = document.getElementById('passModal');
+    const form  = document.getElementById('passForm');
+    const inp   = document.getElementById('passInput');
+    const chk   = document.getElementById('passRemember');
+    const cancel= document.getElementById('passCancel');
+
+    if (!modal || !form || !inp){
+      const p = prompt('Contraseña para guardar cifrado:');
+      resolve((p||'').trim());
+      return;
+    }
+
+    const onCancel = ()=>{
+      cleanup();
+      closePassModal();
+      resolve('');
+    };
+    const onSubmit = async (e)=>{
+      e.preventDefault();
+      const pass = (inp.value||'').trim();
+      if (!pass){ inp.focus(); return; }
+      __lastPass = pass;
+      cleanup();
+      closePassModal();
+      // Si el usuario quiere, intenta guardar en el gestor del dispositivo
+      if (chk && chk.checked){
+        await storePasswordWithOS(pass);
+      }
+      resolve(pass);
+    };
+    const onBackdrop = (e)=>{ if (e.target && e.target.id === 'passModal') onCancel(); };
+
+    function cleanup(){
+      cancel?.removeEventListener('click', onCancel);
+      form.removeEventListener('submit', onSubmit);
+      modal.removeEventListener('click', onBackdrop);
+    }
+
+    cancel?.addEventListener('click', onCancel);
+    form.addEventListener('submit', onSubmit);
+    modal.addEventListener('click', onBackdrop);
+    openPassModal();
+  });
+}
+
 if (btnDownload){
-btnDownload.addEventListener('click', ()=>{
-const f = getFormAsFiliacion();
-const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
-if (anyVal){
-alert(
-"Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
-"Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
-);
-return;
-}
-expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
-const data = { doc: expediente.doc, filiaciones: expediente.filiaciones };
-try{
-const jsonStr = JSON.stringify(data, null, 2);
-const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
-const url = URL.createObjectURL(blob);
-const d = new Date(); const pad = n => String(n).padStart(2,'0');
-const fname = `Proyecto ${pad(d.getHours())}-${pad(d.getMinutes())} ${pad(d.getDate())}_${pad(d.getMonth()+1)}_${d.getFullYear()}.json`;
-const a = document.createElement('a');
-a.href = url;
-a.download = fname;
-a.click();
-URL.revokeObjectURL(url);
-}catch(err){
-console.error("Error descargando el proyecto:", err);
-alert("No se ha podido descargar el proyecto.");
-}
-});
+  btnDownload.addEventListener('click', async ()=>{
+    const f = getFormAsFiliacion();
+    const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
+    if (anyVal){
+      alert(
+        "Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
+        "Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
+      );
+      return;
+    }
+
+    expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
+    const data = { doc: expediente.doc, filiaciones: expediente.filiaciones };
+
+    const pass = await askPassphraseForSave();
+    if (!pass) return;
+
+    try{
+      const b64 = await encryptJSON(data, pass);
+      const blob = new Blob([b64], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const d = new Date(); const pad = n => String(n).padStart(2,'0');
+      const fname = `Proyecto ${pad(d.getHours())}-${pad(d.getMinutes())} ${pad(d.getDate())}_${pad(d.getMonth()+1)}_${d.getFullYear()}.enc`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
+      a.click();
+      URL.revokeObjectURL(url);
+    }catch(err){
+      console.error('Error descargando cifrado:', err);
+      alert('No se ha podido descargar el proyecto cifrado.');
+    }
+  });
 }
 const btnLoadPlain = document.getElementById('loadPlain');
 const inputPlain   = document.getElementById('plainInput');
@@ -681,12 +850,16 @@ if (AUTH.pass)  h["x-group-pass"] = AUTH.pass;
 return h;
 }
 function updateAuthUI(){
-const badge = document.getElementById('authBadge');
-const btnLogout = document.getElementById('btnLogout');
-if (!badge) return;
-const ok = !!(AUTH.group && AUTH.pass);
-badge.textContent = ok ? `Acceso: ${AUTH.group}` : 'Sin acceso';
-if (btnLogout) btnLogout.style.display = ok ? '' : 'none';
+  const badge = document.getElementById('authBadge');
+  const btnAuth = document.getElementById('btnAuth');
+  const btnLogout = document.getElementById('btnLogout');
+  if (!badge) return;
+
+  const ok = !!(AUTH.group && AUTH.pass);
+  badge.textContent = ok ? `Acceso: ${AUTH.group}` : 'Sin acceso';
+
+  if (btnAuth) btnAuth.style.display = ok ? 'none' : '';
+  if (btnLogout) btnLogout.style.display = ok ? '' : 'none';
 }
 function openAuthModal(){
 const modal = document.getElementById('authModal');
@@ -893,6 +1066,30 @@ return false;
 </div>
 </div>
 </div>
+</div>
+<!-- Modal contraseña guardado cifrado (para que el teléfono lo trate como password) -->
+<div class="modal" id="passModal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="passTitle">
+    <h2 id="passTitle">Guardar cifrado</h2>
+    <form id="passForm" autocomplete="on">
+      <!-- "username" ayuda a los gestores de contraseñas; no se muestra realmente -->
+      <input type="text" name="username" value="compasc" autocomplete="username" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true">
+      <div style="margin-top:10px">
+        <label>Contraseña</label>
+        <input id="passInput" name="password" type="password" autocomplete="current-password" inputmode="text" placeholder="••••••••" />
+      </div>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
+          <input id="passRemember" type="checkbox" checked>
+          <span style="color:var(--muted);font-size:12px;">Recordar en este dispositivo</span>
+        </label>
+        <div class="row" style="margin:0;gap:10px">
+          <button class="btn" type="submit" id="passOk">Guardar</button>
+          <button class="btn secondary" type="button" id="passCancel">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 </body>
 </html>
