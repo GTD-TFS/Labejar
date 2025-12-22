@@ -205,6 +205,15 @@
     padding: 10px 12px;
     font-size: 18px;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .iconPng{
+    width: 22px;
+    height: 22px;
+    display: block;
   }
 
   .badge{
@@ -285,19 +294,13 @@
   </div>
 <div class="card">
 <div class="fields">
-<!-- 0) ACCESO POR USUARIO/GRUPO (envía headers al backend OCR) -->
-<div class="span2">
-<div class="row center" style="margin:2px 0 10px 0">
-<span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
-<button class="btn secondary" id="btnAuth" title="Configurar acceso">Acceso</button>
-<button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">Salir</button>
-</div>
-</div>
 <!-- 1) BOTONES DNI: Foto + Archivo -->
 <div class="span2">
 <div class="row center" style="margin:6px 0 10px 0">
 <button class="btn" style="display:none" id="readAnalyze">ID 📷</button>
-<button class="btn secondary" id="readAnalyzeFile">📷</button>
+<button class="btn secondary" id="readAnalyzeFile" title="Seleccionar documento">
+  <img src="docu.png" alt="Documento" class="iconPng">
+</button>
 <input type="file" id="dniCameraInput" accept="image/*" capture="environment" style="display:none">
 <input type="file" id="dniFileInput" accept="image/*" style="display:none">
 </div>
