@@ -46,17 +46,24 @@
       const wrap = document.createElement('div');
       wrap.className = 'svcRow';
 
-      const inpTxt = document.createElement('input');
-      inpTxt.type = 'text';
+      const inpTxt = document.createElement('textarea');
       inpTxt.placeholder = 'Servicio realizado (texto libre)';
       inpTxt.value = safe(row.txt);
+      inpTxt.className = 'svcTxt';
+      inpTxt.rows = 1;
+      inpTxt.wrap = 'soft';
+
+      const autoGrow = () => {
+        inpTxt.style.height = 'auto';
+        inpTxt.style.height = (inpTxt.scrollHeight) + 'px';
+      };
 
       const inpTime = document.createElement('input');
       inpTime.type = 'time';
       inpTime.value = safe(row.time);
 
       const btnDel = document.createElement('button');
-      btnDel.className = 'btn secondary';
+      btnDel.className = 'btn secondary svcDel';
       btnDel.type = 'button';
       btnDel.title = 'Eliminar fila';
       btnDel.textContent = '✕';
@@ -68,7 +75,7 @@
         save(arr);
       };
 
-      inpTxt.addEventListener('input', persist);
+      inpTxt.addEventListener('input', ()=>{ persist(); autoGrow(); });
       inpTime.addEventListener('input', persist);
 
       btnDel.addEventListener('click', ()=>{
@@ -78,10 +85,11 @@
         render();
       });
 
-      wrap.appendChild(inpTxt);
       wrap.appendChild(inpTime);
       wrap.appendChild(btnDel);
+      wrap.appendChild(inpTxt);
       host.appendChild(wrap);
+      autoGrow();
     });
   }
 
@@ -98,7 +106,7 @@
 
         setTimeout(()=>{
           const host = $('svcGrid');
-          const last = host?.querySelector('.svcRow:last-child input[type="text"]');
+          const last = host?.querySelector('.svcRow:last-child .svcTxt');
           last?.focus();
         }, 0);
       });
