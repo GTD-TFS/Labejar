@@ -14,222 +14,275 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LABEJAR🐝</title>
 <style>
-:root{
-  --bg:#0a0f18;
-  --bg2:#070b12;
-  --fg:#e7edf7;
-  --muted:#a9b6c9;
-  --accent:#2b6fe8;
-  --accent2:#1b4fb8;
-  --card:rgba(18,26,40,.72);
-  --card2:rgba(11,18,32,.72);
-  --border:rgba(255,255,255,.12);
-  --border2:rgba(255,255,255,.18);
-  --green:#22c57b;
-  --red:#ff5656;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  padding:20px;
-  font-family:system-ui,"Segoe UI",Arial;
-  color:var(--fg);
-  background:var(--bg);
-  min-height:100dvh;
-}
-.header{
-  position:fixed;
-  top:14px;
-  right:14px;
-  left:auto;
-  z-index:1000;
-  padding:10px 12px;
-  background:rgba(7,11,18,.78);
-  border:1px solid var(--border);
-  border-radius:9999px;
-  backdrop-filter:blur(10px) saturate(120%);
-  box-shadow:0 10px 30px rgba(0,0,0,.45);
-}
-.header .wrap{max-width:none;margin:0;}
-body{ padding-top:20px; }
-/* Fondo sobrio (sin imagen) */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(900px 600px at 18% 8%, rgba(43,111,232,.20), transparent 60%),
-    radial-gradient(900px 600px at 82% 22%, rgba(34,197,123,.10), transparent 58%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
-  z-index:-2;
-  transform:translateZ(0);
-}
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.03), transparent 30%);
-  z-index:-1;
-  pointer-events:none;
-}
+  :root{
+    /* iOS-like dark palette */
+    --bg: #0b0f14;
+    --surface: rgba(255,255,255,.06);
+    --surface-2: rgba(255,255,255,.10);
+    --border: rgba(255,255,255,.10);
+    --text: rgba(255,255,255,.92);
+    --muted: rgba(255,255,255,.62);
+    --hairline: rgba(255,255,255,.08);
 
-h1{
-  margin:0;
-  font-size:30px;
-  line-height:1.1;
-  letter-spacing:.6px;
-  font-weight:800;
-  color:var(--fg);
-  text-align:right;
-  text-shadow:0 1px 0 rgba(0,0,0,.35);
-}
+    --blue: #0A84FF;     /* iOS system blue */
+    --green: #34C759;    /* iOS system green */
+    --red: #FF453A;      /* iOS system red */
+    --orange: #FF9F0A;   /* iOS system orange */
 
-.grid{display:grid;gap:16px;max-width:1100px;margin:0 auto}
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 12px 30px rgba(0,0,0,.38);
+  }
 
-/* Contenedor tipo "surface" */
-.card{
-  background:linear-gradient(180deg, var(--card), var(--card2));
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:16px;
-  backdrop-filter:blur(10px) saturate(120%);
-  box-shadow:
-    0 18px 50px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.05);
-}
+  *{ box-sizing:border-box; }
+  html,body{ min-height:100%; }
+  html{ background: var(--bg); }
 
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
-.nowrap3{flex-wrap:nowrap;gap:8px}
-.nowrap3 .btn{white-space:nowrap}
-@media(max-width:520px){
-  .nowrap3{gap:6px}
-  .nowrap3 .btn{padding:8px 10px;font-size:12px;border-radius:10px;}
-  #integrarDoc{padding:8px 9px}
-}
-.row.center{justify-content:center}
+  body{
+    margin:0;
+    padding: 70px 16px 16px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    color:var(--text);
+    background:none;
+    min-height:100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-/* Botones sobrios (sin halo) */
-.btn{
-  border:1px solid var(--border);
-  color:var(--fg);
-  background:rgba(255,255,255,.03);
-  padding:10px 14px;
-  border-radius:12px;
-  cursor:pointer;
-  transition:transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
-}
-.btn:hover{
-  transform:translateY(-1px);
-  border-color:var(--border2);
-  background:rgba(255,255,255,.05);
-  box-shadow:0 10px 26px rgba(0,0,0,.35);
-}
-.btn:focus{outline:2px solid rgba(43,111,232,.45);outline-offset:2px}
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(1200px 700px at 20% -10%, rgba(10,132,255,.18), transparent 60%),
+      radial-gradient(900px 600px at 90% 10%, rgba(52,199,89,.10), transparent 55%),
+      linear-gradient(180deg, #0b0f14, #0a0d12);
+  }
 
-.btn.secondary{
-  background:rgba(255,255,255,.02);
-}
+  /* App layout */
+  .app{
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    gap: 14px;
+  }
 
-/* Botones redondos (icon-only) */
-/* Botones redondos (icon-only) */
-#readAnalyzeFile{
-  width:44px;
-  height:44px;
-  padding:0;
-  border-radius:9999px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-h1#btnClearFromHeader{cursor:pointer;user-select:none;}
-#btnClearFromHeader:active{transform:translateY(1px);}
+  /* Capsule header */
+  .topbar.fixed{
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    right: calc(env(safe-area-inset-right, 0px) + 12px);
+    left: auto;
+    z-index: 1000;
+    width: auto;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 9999px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    backdrop-filter: blur(14px);
+  }
 
-/* Botones destacados: solo borde/acento, no neón */
-#gptComparecencia{
-  border-color:rgba(43,111,232,.55);
-  background:linear-gradient(135deg, rgba(43,111,232,.10), rgba(27,79,184,.06));
-}
-#gptComparecencia:hover{border-color:rgba(43,111,232,.75)}
+  .brandTitle{
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+  }
 
-#addFiliacion{
-  border-color:rgba(255,159,10,.55);
-  background:linear-gradient(135deg, rgba(255,159,10,.14), rgba(255,159,10,.06));
-}
-#addFiliacion:hover{
-  border-color:rgba(255,159,10,.80);
-  background:linear-gradient(135deg, rgba(255,159,10,.18), rgba(255,159,10,.08));
-}
+  .subbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    backdrop-filter: blur(14px);
+  }
 
-#clearForm{
-  border-color:rgba(255,86,86,.45);
-  background:linear-gradient(135deg, rgba(255,86,86,.10), rgba(255,86,86,.05));
-}
-#clearForm:hover{border-color:rgba(255,86,86,.70)}
+  .subtitle{
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
 
-.fields{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:760px){.fields{grid-template-columns:1fr 1fr}}
+  /* Card */
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 14px;
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+  }
 
-label{
-  font-size:12px;
-  margin-bottom:4px;
-  color:var(--muted);
-  display:block
-}
+  /* Form grid */
+  .fields{ display:grid; gap:12px; grid-template-columns: 1fr; }
+  @media(min-width:820px){ .fields{ grid-template-columns: 1fr 1fr; } }
+  .span2{ grid-column: 1 / -1; }
 
-input,select,textarea{
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  background:rgba(10,16,28,.40);
-  color:var(--fg);
-  border:1px solid var(--border);
-  outline:none;
-  transition:border-color .15s ease, background .15s ease;
-}
-input:focus,select:focus,textarea:focus{
-  border-color:rgba(43,111,232,.55);
-  background:rgba(10,16,28,.52);
-}
-textarea{min-height:120px;resize:vertical}
-input.valid,select.valid{border-color:var(--green)!important}
-input.invalid,select.invalid{border-color:var(--red)!important}
+  label{
+    display:block;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
 
-.span2{grid-column:1/-1}
+  input, select, textarea{
+    width:100%;
+    padding: 12px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s ease, background .15s ease;
+  }
 
-.badge{
-  padding:4px 8px;
-  border-radius:9999px;
-  background:rgba(255,255,255,.05);
-  border:1px solid var(--border);
-  font-size:12px;
-  color:var(--fg);
-}
+  input, select{ height: 38px; }
+  textarea{ min-height: 140px; resize: vertical; }
+  input:focus, select:focus, textarea:focus{ border-color: rgba(10,132,255,.65); }
 
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.60);z-index:9999;padding:16px;}
-.modal.open{display:flex;}
-.modal .panel{width:min(520px,96vw);background:rgba(11,18,32,.92);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);backdrop-filter:blur(10px);}
-.modal .panel h2{margin:0 0 10px;font-size:16px;color:var(--fg); text-align:left}
-.modal .panel .fields2{display:grid;gap:10px;grid-template-columns:1fr;}
-@media(min-width:520px){.modal .panel .fields2{grid-template-columns:1fr 1fr;}}
-.modal .panel .span2{grid-column:1/-1;}
+  select{
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 38px;
+    line-height: 1.2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='rgba(255,255,255,.55)' d='M5.25 7.5 10 12.25 14.75 7.5 16 8.75 10 14.75 4 8.75z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px 18px;
+  }
 
-ul.list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-ul.list li{position:relative;border-radius:10px;padding:6px 10px;background:rgba(10,16,28,.55);font-size:12px;border:1px solid var(--border);overflow:hidden;}
-ul.list li button{margin-left:8px}
+  input.valid,select.valid{ border-color: rgba(52,199,89,.7) !important; }
+  input.invalid,select.invalid{ border-color: rgba(255,69,58,.75) !important; }
+  input.uncertain, select.uncertain, textarea.uncertain{ border-color: rgba(255,159,10,.75) !important; }
 
-input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !important;box-shadow:0 0 0 2px rgba(255,193,7,.12) inset;}
+  /* Buttons */
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .row.center{ justify-content:center; }
 
-#readAnalyzeFile{font-size:28px;line-height:1;}
-/* .toolbar-center rule removed */
+  .btn{
+    appearance: none;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-weight: 650;
+    letter-spacing: .2px;
+    transition: transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover{ background: rgba(255,255,255,.09); }
+  .btn:active{ transform: scale(.98); }
+  .btn:focus{ outline: 2px solid rgba(10,132,255,.45); outline-offset: 2px; }
+
+  .btn.secondary{
+    background: transparent;
+    border-color: rgba(255,255,255,.14);
+    font-weight: 600;
+  }
+
+  /* Semantic accents without halos */
+  #gptComparecencia{ border-color: rgba(10,132,255,.55); }
+  #addFiliacion{ border-color: rgba(255,159,10,.55); }
+  #clearForm{ border-color: rgba(255,69,58,.65); }
+
+  #readAnalyzeFile{
+    padding: 10px 12px;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 6px 10px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06);
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  ul.list{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+  ul.list li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border-radius: 9999px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.10);
+    font-size: 12px;
+  }
+  ul.list li button{ margin-left: 2px; }
+
+  /* Modals */
+  .modal{
+    position:fixed; inset:0; display:none;
+    align-items:center; justify-content:center;
+    background: rgba(0,0,0,.58);
+    z-index: 9999;
+    padding: 16px;
+  }
+  .modal.open{ display:flex; }
+  .modal .panel{
+    width: min(520px, 96vw);
+    background: rgba(20,24,30,.92);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    backdrop-filter: blur(16px);
+  }
+  .modal .panel h2{ margin:0 0 10px; font-size: 16px; color: var(--text); }
+  .modal .panel .fields2{ display:grid; gap:10px; grid-template-columns: 1fr; }
+  @media(min-width:520px){ .modal .panel .fields2{ grid-template-columns: 1fr 1fr; } }
+
+  @media (max-width: 520px){
+    body{
+      padding: calc(12px + env(safe-area-inset-top))
+               calc(12px + env(safe-area-inset-right))
+               calc(12px + env(safe-area-inset-bottom))
+               calc(12px + env(safe-area-inset-left));
+    }
+    .subbar{ flex-wrap: wrap; gap: 8px; }
+    .subbar .subtitle{ flex: 1 1 100%; }
+    .btn{ padding: 10px 11px; }
+  }
 </style>
 </head>
 <body>
-<header class="header">
-  <div class="wrap">
-    <h1 id="btnClearFromHeader" data-title="FILIATRON" title="Limpiar formulario">🐝</h1>
+<div class="app">
+  <header class="topbar fixed" aria-label="Limpiar">
+    <h1 class="brandTitle" id="btnClearFromHeader" data-title="FILIATRON" title="Limpiar formulario">🐝</h1>
+  </header>
+
+  <div class="subbar">
+    <span class="subtitle">Filiaciones y Comparecencia GPT</span>
+
+    <div class="row" style="margin:0">
+      <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
+      <button class="btn secondary" id="btnAuth" title="Configurar acceso">Acceso</button>
+      <button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">Salir</button>
+    </div>
   </div>
-</header>
-<div class="grid">
 <div class="card">
 <div class="fields">
 <!-- 0) ACCESO POR USUARIO/GRUPO (envía headers al backend OCR) -->
@@ -308,9 +361,10 @@ input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !import
   </div>
   <div class="row" style="margin:0;gap:10px">
     <button class="btn" id="download">⬇️ Descargar</button>
-    <button class="btn secondary" style="display:none" id="loadPlain">⬆️ Cargar</button>
-    <input type="file" id="plainInput" accept=".json" style="display:none">
+    <button class="btn secondary" id="loadPlain">⬆️ Importar</button>
+    <input type="file" id="plainInput" accept=".json,.enc,.txt" style="display:none">
   </div>
+</div>
 </div>
 </div>
 </div>
@@ -768,45 +822,6 @@ if (btnDownload){
     }
   });
 }
-const btnLoadPlain = document.getElementById('loadPlain');
-const inputPlain   = document.getElementById('plainInput');
-if (btnLoadPlain && inputPlain){
-btnLoadPlain.addEventListener('click', () => {
-inputPlain.value = "";
-inputPlain.click();
-});
-inputPlain.addEventListener('change', (e) => {
-const file = e.target.files && e.target.files[0];
-if (!file) return;
-const reader = new FileReader();
-reader.onload = (ev) => {
-try{
-const text = (ev.target.result || "").toString().trim();
-if (!text){
-alert("Archivo vacío o no válido.");
-return;
-}
-const data = JSON.parse(text);
-if (!data || typeof data !== "object") throw new Error("Formato inesperado");
-expediente.doc = data.doc || "";
-expediente.filiaciones = Array.isArray(data.filiaciones) ? data.filiaciones : [];
-["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
-.forEach(id => {
-const el = document.getElementById(id);
-if (el){ el.value = ""; el.classList.remove("uncertain","valid","invalid"); }
-});
-const docEl = document.getElementById('Doc');
-if (docEl) docEl.value = expediente.doc;
-updateCount();
-validateAll();
-}catch(err){
-console.error("Error al cargar el proyecto:", err);
-alert("No se ha podido cargar el proyecto. JSON inválido o archivo dañado.");
-}
-};
-reader.readAsText(file);
-});
-}
 ["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"].forEach(id => {
 const el = document.getElementById(id);
 if (!el) return;
@@ -1098,6 +1113,7 @@ return false;
     </form>
   </div>
 </div>
+<script src="importar.js"></script>
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/Labejar/sw.js');
 </script>
