@@ -129,8 +129,8 @@ h1{
 }
 
 /* Botones redondos (icon-only) */
-#readAnalyzeFile,
-#clearForm{
+/* Botones redondos (icon-only) */
+#readAnalyzeFile{
   width:44px;
   height:44px;
   padding:0;
@@ -139,6 +139,8 @@ h1{
   align-items:center;
   justify-content:center;
 }
+h1#btnClearFromHeader{cursor:pointer;user-select:none;}
+#btnClearFromHeader:active{transform:translateY(1px);}
 
 /* Botones destacados: solo borde/acento, no neón */
 #gptComparecencia{
@@ -213,13 +215,13 @@ ul.list li button{margin-left:8px}
 input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !important;box-shadow:0 0 0 2px rgba(255,193,7,.12) inset;}
 
 #readAnalyzeFile{font-size:28px;line-height:1;}
-.toolbar-center{position:relative;justify-content:center !important;padding-left:44px;}
+/* .toolbar-center rule removed */
 </style>
 </head>
 <body>
 <header class="header">
   <div class="wrap">
-    <h1 data-title="FILIATRON">🐝</h1>
+    <h1 id="btnClearFromHeader" data-title="FILIATRON" title="Limpiar formulario">🐝</h1>
   </div>
 </header>
 <div class="grid">
@@ -265,23 +267,24 @@ input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !import
 <div class="span2 row center" style="margin-top:6px">
 <ul class="list" id="listaF"></ul>
 </div>
-<div class="span2 row center" style="margin-top:8px">
-<button class="btn" id="addFiliacion">👤 Agregar</button>
-</div>
-<div class="span2 row nowrap3 toolbar-center" style="margin-top:8px">
-<button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
-<button class="btn" id="integrarDoc" title="Pegar desde portapapeles">⬇️</button>
+<div class="span2 row" style="margin-top:8px;justify-content:space-between">
+  <button class="btn" id="addFiliacion">👤 Agregar</button>
+  <button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
 </div>
 <!-- 6) DOC -->
 <div class="span2">
 <textarea id="Doc"></textarea>
 </div>
 <!-- 7) RESTO BOTONES (sin cifrado) -->
-<div class="span2 row center" style="margin-top:10px">
-<button class="btn" id="download">⬇️ Descargar</button>
-<button class="btn secondary broom" id="clearForm" title="Limpiar formulario">🧹</button>
-<button class="btn secondary" style="display:none" id="loadPlain">⬆️ Cargar</button>
-<input type="file" id="plainInput" accept=".json" style="display:none">
+<div class="span2 row" style="margin-top:10px;justify-content:space-between">
+  <div class="row" style="margin:0;gap:10px">
+    <button class="btn" id="integrarDoc" title="Pegar desde portapapeles">📋</button>
+  </div>
+  <div class="row" style="margin:0;gap:10px">
+    <button class="btn" id="download">⬇️ Descargar</button>
+    <button class="btn secondary" style="display:none" id="loadPlain">⬆️ Cargar</button>
+    <input type="file" id="plainInput" accept=".json" style="display:none">
+  </div>
 </div>
 </div>
 </div>
@@ -556,7 +559,7 @@ expediente.filiaciones.push(f);
 updateCount();
 clearFormOnly();
 });
-document.getElementById('clearForm').addEventListener('click', clearFormOnly);
+document.getElementById('btnClearFromHeader')?.addEventListener('click', clearFormOnly);
 document.getElementById('Doc').addEventListener('input', (e)=>{ expediente.doc = e.target.value; });
 const btnDownload = document.getElementById('download');
 if (btnDownload){
