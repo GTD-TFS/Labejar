@@ -1,9 +1,9 @@
 {
-  "name": "DECLARATRON",
-  "short_name": "DECLARATRON",
-  "description": "Herramienta offline para formularios y texto operativo.",
-  "start_url": "./Fil.html",
-  "scope": "./",
+  "name": "LABEJAR🐝",
+  "short_name": "LABEJAR🐝",
+  "description": "Herramienta offline/IA-online para filiaciones y comparecencia GPT",
+  "start_url": "/Labejar/Fil.cleaned.html",
+  "scope": "/Labejar/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0b1220",
@@ -11,25 +11,31 @@
   "lang": "es",
   "icons": [
     {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-512.png",
+      "src": "/Labejar/abeja.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-192-maskable.png",
+"src": "/Labejar/abeja.png",     
+ "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Labejar/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+"src": "/Labejar/abeja.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "./icons/icon-512-maskable.png",
+"src": "/Labejar/abeja.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
