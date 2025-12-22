@@ -16,9 +16,9 @@
 <style>
   :root{
     /* iOS-like dark palette */
-    --bg: #0b0f14;
-    --surface: rgba(255,255,255,.06);
-    --surface-2: rgba(255,255,255,.10);
+    --bg: #071a2a;
+    --surface: rgba(255,255,255,.045);
+    --surface-2: rgba(255,255,255,.085);
     --border: rgba(255,255,255,.10);
     --text: rgba(255,255,255,.92);
     --muted: rgba(255,255,255,.62);
@@ -28,6 +28,7 @@
     --green: #34C759;    /* iOS system green */
     --red: #FF453A;      /* iOS system red */
     --orange: #FF9F0A;   /* iOS system orange */
+    --gold: #d6b36a;    /* warm gold accent */
 
     --radius: 16px;
     --radius-sm: 12px;
@@ -55,9 +56,10 @@
     inset:0;
     z-index:-1;
     background:
-      radial-gradient(1200px 700px at 20% -10%, rgba(10,132,255,.18), transparent 60%),
-      radial-gradient(900px 600px at 90% 10%, rgba(52,199,89,.10), transparent 55%),
-      linear-gradient(180deg, #0b0f14, #0a0d12);
+      radial-gradient(1100px 700px at 20% -10%, rgba(26,120,200,.34), transparent 62%),
+      radial-gradient(900px 650px at 85% 0%, rgba(214,179,106,.16), transparent 60%),
+      radial-gradient(900px 700px at 60% 110%, rgba(6,18,32,.55), transparent 60%),
+      linear-gradient(180deg, #061a2b, #04101d);
   }
 
   /* App layout */
@@ -71,18 +73,19 @@
   /* Capsule header */
   .topbar.fixed{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    top: calc(env(safe-area-inset-top, 0px) + 18px);
     right: calc(env(safe-area-inset-right, 0px) + 12px);
     left: auto;
     z-index: 1000;
     width: auto;
     margin: 0;
-   padding: 8px 12px 8px 10px;
+    padding: 6px;
     border-radius: 9999px;
-    background: rgba(255,255,255,.06);
-    border: 1px solid var(--hairline);
-    box-shadow: 0 10px 24px rgba(0,0,0,.28);
-    backdrop-filter: blur(14px);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    pointer-events: auto;
   }
 
   .brandTitle{
@@ -98,9 +101,25 @@
     user-select: none;
     line-height: 1;
     height: 32px;
-width: 32px;
-line-height: 32px;
-transform: translateX(-1px);
+    width: 32px;
+    line-height: 32px;
+    transform: translateX(-1px);
+    animation: beeFloat 3.2s infinite ease-in-out;
+    will-change: transform;
+  }
+
+  @keyframes beeFloat{
+    0%   { transform: translateX(-1px) translateY(0px) rotate(0deg); }
+    12%  { transform: translateX(-3px) translateY(-2px) rotate(-2deg); }
+    28%  { transform: translateX(1px)  translateY(-3px) rotate(2deg); }
+    46%  { transform: translateX(-2px) translateY(1px) rotate(-1deg); }
+    63%  { transform: translateX(2px)  translateY(2px) rotate(1deg); }
+    78%  { transform: translateX(-1px) translateY(-1px) rotate(-2deg); }
+    100% { transform: translateX(-1px) translateY(0px) rotate(0deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .brandTitle{ animation: none !important; }
   }
 
   .subbar{
@@ -111,41 +130,84 @@ transform: translateX(-1px);
     padding: 10px 14px;
     margin-top: 10px;
     background: var(--surface);
-    border: 1px solid var(--hairline);
+    border: 1px solid rgba(255,255,255,.12);
     border-radius: var(--radius);
     backdrop-filter: blur(14px);
   }
 
   .subtitle{
     font-size: 12px;
-    color: var(--muted);
+    color: rgba(214,179,106,.92);
+    letter-spacing: .6px;
     white-space: nowrap;
   }
 
   /* Card */
   .card{
     background: var(--surface);
-    border: 1px solid var(--hairline);
+    border: 1px solid rgba(255,255,255,.12);
     border-radius: var(--radius);
     padding: 14px;
     backdrop-filter: blur(14px);
     box-shadow: var(--shadow);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Let the main card use most of the viewport height */
+  /* Let the main card use most of the viewport height */
+  .card{
+    min-height: calc(100dvh - 120px);
+    height: calc(100dvh - 120px);
+  }
+
+  /* Comparecencia: make textarea grow to fill remaining space */
+  #screenComparecencia{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+  }
+  #screenComparecencia .span2{ width: 100%; }
+  #screenComparecencia #Doc{
+    flex: 1 1 auto;
+    min-height: 240px;
+    height: 100%;
+    resize: none;
   }
 
   /* Form grid */
-  .fields{ display:grid; gap:12px; grid-template-columns: 1fr; }
-  @media(min-width:820px){ .fields{ grid-template-columns: 1fr 1fr; } }
+  .fields{ display:block; height: 100%; }
+
+  #screenFiliacion,
+ 
+  #screenServicios{
+    display:grid;
+    gap:22px;
+    grid-template-columns: 1fr;
+  }
+  #screenComparecencia .span2:has(#Doc){ flex:1 1 auto; display:flex; }
+  #screenComparecencia .span2.row:has(#download){
+    margin-top: auto;
+  }
+  @media(min-width:820px){
+    #screenFiliacion,
+    #screenServicios{
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
   .span2{ grid-column: 1 / -1; }
 
   label{
     display:block;
     font-size: 12px;
-    color: var(--muted);
-    margin: 0 0 6px;
+    color: rgba(214,179,106,.88);
+    margin: 0 0 8px;
   }
 
   /* Center alignment only for Filiación form */
-  #screenFiliacion label{ text-align: center; }
+  #screenFiliacion label{ text-align: left; }
   #screenFiliacion input,
   #screenFiliacion select,
   #screenFiliacion textarea{
@@ -193,7 +255,7 @@ transform: translateX(-1px);
     appearance: none;
     border: 1px solid rgba(255,255,255,.12);
     background: rgba(255,255,255,.06);
-    color: var(--text);
+    color: rgba(214,179,106,.92);
     padding: 10px 12px;
     border-radius: 9999px;
     cursor: pointer;
@@ -209,11 +271,14 @@ transform: translateX(-1px);
     background: transparent;
     border-color: rgba(255,255,255,.14);
     font-weight: 600;
+    color: rgba(214,179,106,.86);
   }
 
-  /* Semantic accents without halos */
-  #gptComparecencia{ border-color: rgba(10,132,255,.55); }
-  #addFiliacion{ border-color: rgba(255,159,10,.55); }
+  /* Auth buttons: keep neutral text (not gold) */
+  #authRow .btn.secondary{
+    color: var(--text);
+  }
+
   #clearForm{ border-color: rgba(255,69,58,.65); }
 
   #readAnalyzeFile{
@@ -280,7 +345,7 @@ transform: translateX(-1px);
     gap:8px;
     padding: 6px 10px;
     border-radius: 9999px;
-    border: 1px solid rgba(255,255,255,.12);
+    border: 1px solid rgba(214,179,106,.16);
     background: rgba(255,255,255,.06);
     color: var(--muted);
     font-size: 12px;
@@ -348,7 +413,7 @@ transform: translateX(-1px);
   <div class="subbar">
     <span class="subtitle" id="subtitleText">Filiaciones y Comparecencia GPT</span>
 
-    <div class="row" style="margin:0">
+    <div class="row" id="authRow" style="margin:0">
       <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
       <button class="btn secondary" id="btnAuth" title="Configurar acceso">Acceso</button>
       <button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">Salir</button>
@@ -409,25 +474,25 @@ transform: translateX(-1px);
 <div><label>Lugar de nacimiento</label><input id="Lugar"></div>
 <div class="span2"><label>Domicilio</label><input id="Domicilio"></div>
 <!-- 3) LISTA / CONTADOR / AGREGAR -->
-<div class="span2 row" style="margin-top:8px;justify-content:space-between">
+<div class="span2 row center" style="margin-top:8px">
   <button class="btn" id="addFiliacion">👤 Agregar</button>
 </div>
 <div class="span2 row center" style="margin-top:6px">
-<ul class="list" id="listaF"></ul>
+  <ul class="list" id="listaF"></ul>
 </div>
 </div>
 
 <div id="screenComparecencia" style="display:none">
   <div class="span2 row" style="margin-top:8px;justify-content:space-between">
-    <button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
+<button class="btn" id="gptComparecencia" title="Abrir Denuncia">GPT</button>
     <button class="btn" id="integrarDoc" title="Pegar desde portapapeles">📋</button>
   </div>
 
-  <div class="span2" style="margin-top:10px">
+  <div class="span2">
     <textarea id="Doc" placeholder="Texto / comparecencia..."></textarea>
   </div>
 
-  <div class="span2 row" style="margin-top:10px;justify-content:flex-end">
+  <div class="span2 row" style="justify-content:flex-end">
     <button class="btn" id="download">⬇️ Descargar</button>
     <button class="btn secondary" id="loadPlain">⬆️ Importar</button>
     <input type="file" id="plainInput" accept=".json,.enc,.txt" style="display:none">
@@ -435,11 +500,9 @@ transform: translateX(-1px);
 </div>
 
 <div id="screenServicios" style="display:none">
-  <div class="span2 row" style="margin-top:8px;justify-content:flex-end">
-    <div class="row" style="margin:0;gap:10px">
-      <button class="btn" id="svcAdd">＋ Añadir</button>
-      <button class="btn secondary" id="svcClear" title="Borrado especial">🧹 Borrar servicios</button>
-    </div>
+  <div class="span2 row" style="margin-top:8px;justify-content:space-between">
+    <button class="btn" id="svcAdd">＋ Añadir</button>
+    <button class="btn secondary" id="svcClear" title="Borrado especial">🧹 Borrar servicios</button>
   </div>
 
   <div class="span2" style="margin-top:14px">
@@ -754,6 +817,10 @@ function setScreen(n){
         ? 'Comparecencia'
         : 'Servicios';
   }
+
+  // Mostrar acceso solo en Filiación
+  const authRow = document.getElementById('authRow');
+  if (authRow) authRow.style.display = (n===1) ? '' : 'none';
 
   try{ sessionStorage.setItem('LABEJAR_SCREEN', String(n)); }catch(_){}
 }
