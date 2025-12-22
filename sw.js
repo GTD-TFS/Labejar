@@ -1,10 +1,11 @@
-const CACHE = 'labejar-v1';
+const CACHE = 'labejar-v2';
 const ASSETS = [
   '/Labejar/',
   '/Labejar/index.html',
   '/Labejar/Fil.cleaned.html',
   '/Labejar/manifest.webmanifest',
   '/Labejar/abeja.png',
+  '/Labejar/docu.png',
   '/Labejar/parser.js',
   '/Labejar/municipios.js',
   '/Labejar/provincias_es.js',
