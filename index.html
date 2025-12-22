@@ -73,13 +73,13 @@
   /* Capsule header */
   .topbar.fixed{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 18px);
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
     right: calc(env(safe-area-inset-right, 0px) + 12px);
     left: auto;
     z-index: 1000;
     width: auto;
     margin: 0;
-    padding: 6px;
+    padding: 10px;
     border-radius: 9999px;
     background: transparent;
     border: 0;
@@ -90,7 +90,7 @@
 
   .brandTitle{
     margin: 0;
-    font-size: 30px;
+    font-size: 34px;
     font-weight: 800;
     letter-spacing: .4px;
     display: inline-flex;
@@ -100,11 +100,11 @@
     cursor: pointer;
     user-select: none;
     line-height: 1;
-    height: 32px;
-    width: 32px;
-    line-height: 32px;
+    height: 38px;
+    width: 38px;
+    line-height: 38px;
     transform: translateX(-1px);
-    animation: beeFloat 3.2s infinite ease-in-out;
+    animation: beeFloat 4.2s infinite ease-in-out;
     will-change: transform;
   }
 
@@ -125,7 +125,7 @@
   .subbar{
     display: flex;
     align-items: center;
-    justify-content: space-between;
+justify-content: center;
     gap: 12px;
     padding: 10px 14px;
     margin-top: 10px;
@@ -136,10 +136,13 @@
   }
 
   .subtitle{
-    font-size: 12px;
-    color: rgba(214,179,106,.92);
+    font-size: 13px;
+    color: rgba(214,179,106,.95);
     letter-spacing: .6px;
     white-space: nowrap;
+    text-align: center;
+    font-weight: 700;
+    flex: 1;
   }
 
   /* Card */
@@ -281,6 +284,27 @@
 
   #clearForm{ border-color: rgba(255,69,58,.65); }
 
+  /* === Auth UI simplificado: solo IA On / IA Off === */
+  #authBadge{
+    display:none !important;
+  }
+
+  /* IA Off: fixed subtle inner glow (mobile-friendly) */
+  #btnAuth{
+    color: var(--text);
+    border-color: rgba(255,69,58,.40);
+    box-shadow: inset 0 0 0 1px rgba(255,69,58,.22),
+                inset 0 10px 18px rgba(255,69,58,.10);
+  }
+
+  /* IA On: fixed subtle inner glow (mobile-friendly) */
+  #btnLogout{
+    color: var(--text);
+    border-color: rgba(52,199,89,.40);
+    box-shadow: inset 0 0 0 1px rgba(52,199,89,.22),
+                inset 0 10px 18px rgba(52,199,89,.10);
+  }
+
   #readAnalyzeFile{
     padding: 10px 12px;
     font-size: 18px;
@@ -412,16 +436,17 @@
 
   <div class="subbar">
     <span class="subtitle" id="subtitleText">Filiaciones y Comparecencia GPT</span>
-
-    <div class="row" id="authRow" style="margin:0">
-      <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
-      <button class="btn secondary" id="btnAuth" title="Configurar acceso">Acceso</button>
-      <button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">Salir</button>
-    </div>
   </div>
 <div class="card">
 <div class="fields">
 <div id="screenFiliacion">
+  <div class="span2" style="display:flex;align-items:center;justify-content:flex-start;margin-top:2px">
+  <div class="row" id="authRow" style="margin:0">
+    <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
+    <button class="btn secondary" id="btnAuth" title="Configurar acceso">IA Off</button>
+    <button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">IA On</button>
+  </div>
+</div>
 <!-- 1) BOTONES DNI: Foto + Archivo -->
 <div class="span2">
 <div class="row center" style="margin:6px 0 10px 0">
@@ -492,9 +517,9 @@
     <textarea id="Doc" placeholder="Texto / comparecencia..."></textarea>
   </div>
 
-  <div class="span2 row" style="justify-content:flex-end">
+  <div class="span2 row" style="justify-content:space-between">
     <button class="btn" id="download">⬇️ Descargar</button>
-    <button class="btn secondary" id="loadPlain">⬆️ Importar</button>
+    <button class="btn" id="loadPlain">⬆️ Importar</button>
     <input type="file" id="plainInput" accept=".json,.enc,.txt" style="display:none">
   </div>
 </div>
@@ -818,9 +843,6 @@ function setScreen(n){
         : 'Servicios';
   }
 
-  // Mostrar acceso solo en Filiación
-  const authRow = document.getElementById('authRow');
-  if (authRow) authRow.style.display = (n===1) ? '' : 'none';
 
   try{ sessionStorage.setItem('LABEJAR_SCREEN', String(n)); }catch(_){}
 }
@@ -1079,15 +1101,11 @@ if (AUTH.pass)  h["x-group-pass"] = AUTH.pass;
 return h;
 }
 function updateAuthUI(){
-  const badge = document.getElementById('authBadge');
   const btnAuth = document.getElementById('btnAuth');
   const btnLogout = document.getElementById('btnLogout');
-  if (!badge) return;
-
   const ok = !!(AUTH.group && AUTH.pass);
-  badge.textContent = ok ? `Acceso: ${AUTH.group}` : 'Sin acceso';
 
-  if (btnAuth) btnAuth.style.display = ok ? 'none' : '';
+  if (btnAuth)   btnAuth.style.display = ok ? 'none' : '';
   if (btnLogout) btnLogout.style.display = ok ? '' : 'none';
 }
 function openAuthModal(){
