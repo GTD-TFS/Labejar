@@ -216,6 +216,25 @@
     display: block;
   }
 
+  .svcGrid{
+    display: grid;
+    gap: 10px;
+  }
+  .svcRow{
+    display: grid;
+    grid-template-columns: 1fr 120px 44px;
+    gap: 10px;
+    align-items: center;
+  }
+  @media (max-width: 520px){
+    .svcRow{ grid-template-columns: 1fr 110px 44px; }
+  }
+  .svcRow .btn{
+    padding: 10px 0;
+    width: 44px;
+    text-align: center;
+  }
+
   .badge{
     display:inline-flex;
     align-items:center;
@@ -284,7 +303,7 @@
   </header>
 
   <div class="subbar">
-    <span class="subtitle">Filiaciones y Comparecencia GPT</span>
+    <span class="subtitle" id="subtitleText">Filiaciones y Comparecencia GPT</span>
 
     <div class="row" style="margin:0">
       <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
@@ -294,6 +313,7 @@
   </div>
 <div class="card">
 <div class="fields">
+<div id="screenFiliacion">
 <!-- 1) BOTONES DNI: Foto + Archivo -->
 <div class="span2">
 <div class="row center" style="margin:6px 0 10px 0">
@@ -351,21 +371,37 @@
 </div>
 <div class="span2 row" style="margin-top:8px;justify-content:space-between">
   <button class="btn" id="addFiliacion">👤 Agregar</button>
-  <button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
 </div>
-<!-- 6) DOC -->
-<div class="span2">
-<textarea id="Doc"></textarea>
 </div>
-<!-- 7) RESTO BOTONES (sin cifrado) -->
-<div class="span2 row" style="margin-top:10px;justify-content:space-between">
-  <div class="row" style="margin:0;gap:10px">
+
+<div id="screenComparecencia" style="display:none">
+  <div class="span2 row" style="margin-top:8px;justify-content:space-between">
+    <button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
     <button class="btn" id="integrarDoc" title="Pegar desde portapapeles">📋</button>
   </div>
-  <div class="row" style="margin:0;gap:10px">
+
+  <div class="span2" style="margin-top:10px">
+    <textarea id="Doc" placeholder="Texto / comparecencia..."></textarea>
+  </div>
+
+  <div class="span2 row" style="margin-top:10px;justify-content:flex-end">
     <button class="btn" id="download">⬇️ Descargar</button>
     <button class="btn secondary" id="loadPlain">⬆️ Importar</button>
     <input type="file" id="plainInput" accept=".json,.enc,.txt" style="display:none">
+  </div>
+</div>
+
+<div id="screenServicios" style="display:none">
+  <div class="span2 row" style="margin-top:8px;justify-content:space-between">
+    <span class="badge" title="Se guarda en este dispositivo">Servicios (persistente)</span>
+    <div class="row" style="margin:0;gap:10px">
+      <button class="btn" id="svcAdd">＋ Añadir</button>
+      <button class="btn secondary" id="svcClear" title="Borrado especial">🧹 Borrar servicios</button>
+    </div>
+  </div>
+
+  <div class="span2" style="margin-top:10px">
+    <div id="svcGrid" class="svcGrid"></div>
   </div>
 </div>
 </div>
@@ -377,6 +413,8 @@
 <script src="paises.js"></script>
 <script src="calles.js"></script>
 <script src="parser.js"></script>
+<script src="comparecencia.js"></script>
+<script src="servicios.js"></script>
 <script>
 // UI / wiring (moved out of parser.js on purpose)
 function enforceCanonicalNacionalidad(){
@@ -591,10 +629,11 @@ function clearFormFieldsOnly(){
     }
   });
 
-  const ta = document.getElementById('Doc');
+    const ta = document.getElementById('Doc');
   if (ta){
     ta.value = "";
   }
+  if (typeof expediente === 'object' && expediente) expediente.doc = "";
 }
 
 function clearFormOnly(){
@@ -624,19 +663,7 @@ inputArchivo.value = "";
 inputArchivo.click();
 });
 }
-document.getElementById('gptComparecencia').addEventListener('click', ()=>{
-window.open('https://chatgpt.com/g/g-69492f8f5cbc8191bf094b7d16bdcb4b-intervencion','_blank','noopener');
-});
-async function readFromClipboard(){
-try{ const txt = await navigator.clipboard.readText(); return txt || ""; }
-catch{ const m = prompt("Pega manualmente el texto:"); return m || ""; }
-}
-document.getElementById('integrarDoc').addEventListener('click', async ()=>{
-const txt = await readFromClipboard();
-if (!txt.trim()) { alert("Portapapeles vacío."); return; }
-document.getElementById('Doc').value = txt;
-expediente.doc = txt;
-});
+
 document.getElementById('addFiliacion').addEventListener('click', ()=>{
 const f = getFormAsFiliacion();
 const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
@@ -656,8 +683,74 @@ expediente.filiaciones.push(f);
 updateCount();
 clearFormFieldsOnly();
 });
-document.getElementById('btnClearFromHeader')?.addEventListener('click', clearFormOnly);
-document.getElementById('Doc').addEventListener('input', (e)=>{ expediente.doc = e.target.value; });
+const __bee = document.getElementById('btnClearFromHeader');
+let __screen = 1; // 1=filiacion, 2=comparecencia, 3=servicios
+let __pressT = null;
+
+function setScreen(n){
+  __screen = n;
+  const s1 = document.getElementById('screenFiliacion');
+  const s2 = document.getElementById('screenComparecencia');
+  const s3 = document.getElementById('screenServicios');
+  if (s1) s1.style.display = (n===1) ? '' : 'none';
+  if (s2) s2.style.display = (n===2) ? '' : 'none';
+  if (s3) s3.style.display = (n===3) ? '' : 'none';
+
+  // Ocultar botones de OCR fuera de Filiación
+  const ocrRow = document.getElementById('readAnalyzeFile')?.closest('.span2');
+  if (ocrRow) ocrRow.style.display = (n===1) ? '' : 'none';
+
+  if (__bee){
+    __bee.title = (n===1) ? 'Filiación' : (n===2) ? 'Comparecencia' : 'Servicios';
+  }
+
+  const sub = document.getElementById('subtitleText');
+  if (sub){
+    sub.textContent = (n===1)
+      ? 'Filiaciones'
+      : (n===2)
+        ? 'Comparecencia'
+        : 'Servicios';
+  }
+
+  try{ sessionStorage.setItem('LABEJAR_SCREEN', String(n)); }catch(_){}
+}
+
+function nextScreen(){
+  setScreen(__screen === 3 ? 1 : (__screen + 1));
+}
+
+if (__bee){
+  // click corto: ciclo de pantallas
+  __bee.addEventListener('click', ()=>{
+    if (__bee.dataset.lp === '1'){ __bee.dataset.lp = '0'; return; }
+    nextScreen();
+  });
+
+  // pulsación larga: borrar expediente (NO servicios)
+  const startLP = ()=>{
+    clearTimeout(__pressT);
+    __pressT = setTimeout(()=>{
+      __bee.dataset.lp = '1';
+      clearFormOnly();
+      alert('Borrado: expediente (filiaciones + doc).');
+    }, 650);
+  };
+  const endLP = ()=>{ clearTimeout(__pressT); __pressT = null; };
+
+  __bee.addEventListener('mousedown', startLP);
+  __bee.addEventListener('touchstart', startLP, { passive:true });
+  __bee.addEventListener('mouseup', endLP);
+  __bee.addEventListener('mouseleave', endLP);
+  __bee.addEventListener('touchend', endLP);
+}
+
+// restaurar última pantalla
+try{
+  const saved = parseInt(sessionStorage.getItem('LABEJAR_SCREEN')||'1',10);
+  if ([1,2,3].includes(saved)) __screen = saved;
+}catch(_){}
+setScreen(__screen);
 const natElFix = document.getElementById('Nacionalidad');
 if (natElFix){ const fix=()=>{ if (/^españa$/i.test(natElFix.value.trim())) natElFix.value='España'; }; natElFix.addEventListener('input', fix); natElFix.addEventListener('change', fix); natElFix.addEventListener('blur', fix); }
 const btnDownload = document.getElementById('download');
@@ -792,14 +885,16 @@ async function askPassphraseForSave(){
 
 if (btnDownload){
   btnDownload.addEventListener('click', async ()=>{
-    const f = getFormAsFiliacion();
-    const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
-    if (anyVal){
-      alert(
-        "Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
-        "Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
-      );
-      return;
+    if (__screen === 1){
+      const f = getFormAsFiliacion();
+      const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
+      if (anyVal){
+        alert(
+          "Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
+          "Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
+        );
+        return;
+      }
     }
 
     expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
