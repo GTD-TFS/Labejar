@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0b1220">
+<!-- iOS (Safari): no usa bien el manifest, necesita estos meta + icon -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DECLARATRON">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DECLARATRON</title>
+<style>
+:root{
+  --bg:#0a0f18;
+  --bg2:#070b12;
+  --fg:#e7edf7;
+  --muted:#a9b6c9;
+  --accent:#2b6fe8;
+  --accent2:#1b4fb8;
+  --card:rgba(18,26,40,.72);
+  --card2:rgba(11,18,32,.72);
+  --border:rgba(255,255,255,.12);
+  --border2:rgba(255,255,255,.18);
+  --green:#22c57b;
+  --red:#ff5656;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:20px;
+  font-family:system-ui,"Segoe UI",Arial;
+  color:var(--fg);
+  background:var(--bg);
+  min-height:100dvh;
+}
+.header{
+  position:fixed;
+  top:14px;
+  right:14px;
+  left:auto;
+  z-index:1000;
+  padding:10px 12px;
+  background:rgba(7,11,18,.78);
+  border:1px solid var(--border);
+  border-radius:9999px;
+  backdrop-filter:blur(10px) saturate(120%);
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+}
+.header .wrap{max-width:none;margin:0;}
+body{ padding-top:20px; }
+/* Fondo sobrio (sin imagen) */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(900px 600px at 18% 8%, rgba(43,111,232,.20), transparent 60%),
+    radial-gradient(900px 600px at 82% 22%, rgba(34,197,123,.10), transparent 58%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  z-index:-2;
+  transform:translateZ(0);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), transparent 30%);
+  z-index:-1;
+  pointer-events:none;
+}
+
+h1{
+  margin:0;
+  font-size:30px;
+  line-height:1.1;
+  letter-spacing:.6px;
+  font-weight:800;
+  color:var(--fg);
+  text-align:right;
+  text-shadow:0 1px 0 rgba(0,0,0,.35);
+}
+
+.grid{display:grid;gap:16px;max-width:1100px;margin:0 auto}
+
+/* Contenedor tipo "surface" */
+.card{
+  background:linear-gradient(180deg, var(--card), var(--card2));
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  backdrop-filter:blur(10px) saturate(120%);
+  box-shadow:
+    0 18px 50px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.nowrap3{flex-wrap:nowrap;gap:8px}
+.nowrap3 .btn{white-space:nowrap}
+@media(max-width:520px){
+  .nowrap3{gap:6px}
+  .nowrap3 .btn{padding:8px 10px;font-size:12px;border-radius:10px;}
+  #integrarDoc{padding:8px 9px}
+}
+.row.center{justify-content:center}
+
+/* Botones sobrios (sin halo) */
+.btn{
+  border:1px solid var(--border);
+  color:var(--fg);
+  background:rgba(255,255,255,.03);
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.btn:hover{
+  transform:translateY(-1px);
+  border-color:var(--border2);
+  background:rgba(255,255,255,.05);
+  box-shadow:0 10px 26px rgba(0,0,0,.35);
+}
+.btn:focus{outline:2px solid rgba(43,111,232,.45);outline-offset:2px}
+
+.btn.secondary{
+  background:rgba(255,255,255,.02);
+}
+
+/* Botones redondos (icon-only) */
+#readAnalyzeFile,
+#clearForm{
+  width:44px;
+  height:44px;
+  padding:0;
+  border-radius:9999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Botones destacados: solo borde/acento, no neón */
+#gptComparecencia{
+  border-color:rgba(43,111,232,.55);
+  background:linear-gradient(135deg, rgba(43,111,232,.10), rgba(27,79,184,.06));
+}
+#gptComparecencia:hover{border-color:rgba(43,111,232,.75)}
+
+#addFiliacion{
+  border-color:rgba(34,197,123,.45);
+  background:linear-gradient(135deg, rgba(34,197,123,.10), rgba(34,197,123,.05));
+}
+#addFiliacion:hover{border-color:rgba(34,197,123,.70)}
+
+#clearForm{
+  border-color:rgba(255,86,86,.45);
+  background:linear-gradient(135deg, rgba(255,86,86,.10), rgba(255,86,86,.05));
+}
+#clearForm:hover{border-color:rgba(255,86,86,.70)}
+
+.fields{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:760px){.fields{grid-template-columns:1fr 1fr}}
+
+label{
+  font-size:12px;
+  margin-bottom:4px;
+  color:var(--muted);
+  display:block
+}
+
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(10,16,28,.40);
+  color:var(--fg);
+  border:1px solid var(--border);
+  outline:none;
+  transition:border-color .15s ease, background .15s ease;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:rgba(43,111,232,.55);
+  background:rgba(10,16,28,.52);
+}
+textarea{min-height:120px;resize:vertical}
+input.valid,select.valid{border-color:var(--green)!important}
+input.invalid,select.invalid{border-color:var(--red)!important}
+
+.span2{grid-column:1/-1}
+
+.badge{
+  padding:4px 8px;
+  border-radius:9999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  font-size:12px;
+  color:var(--fg);
+}
+
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.60);z-index:9999;padding:16px;}
+.modal.open{display:flex;}
+.modal .panel{width:min(520px,96vw);background:rgba(11,18,32,.92);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);backdrop-filter:blur(10px);}
+.modal .panel h2{margin:0 0 10px;font-size:16px;color:var(--fg)}
+.modal .panel .fields2{display:grid;gap:10px;grid-template-columns:1fr;}
+@media(min-width:520px){.modal .panel .fields2{grid-template-columns:1fr 1fr;}}
+.modal .panel .span2{grid-column:1/-1;}
+
+ul.list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+ul.list li{position:relative;border-radius:10px;padding:6px 10px;background:rgba(10,16,28,.55);font-size:12px;border:1px solid var(--border);overflow:hidden;}
+ul.list li button{margin-left:8px}
+
+input.uncertain,select.uncertain,textarea.uncertain{border-color:#ffc107 !important;box-shadow:0 0 0 2px rgba(255,193,7,.12) inset;}
+
+#readAnalyzeFile{font-size:28px;line-height:1;}
+.toolbar-center{position:relative;justify-content:center !important;padding-left:44px;}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="wrap">
+    <h1 data-title="FILIATRON">🐝</h1>
+  </div>
+</header>
+<div class="grid">
+<div class="card">
+<div class="fields">
+<!-- 0) ACCESO POR USUARIO/GRUPO (envía headers al backend OCR) -->
+<div class="span2">
+<div class="row center" style="margin:2px 0 10px 0">
+<span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
+<button class="btn secondary" id="btnAuth" title="Configurar acceso">Acceso</button>
+<button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">Salir</button>
+</div>
+</div>
+<!-- 1) BOTONES DNI: Foto + Archivo -->
+<div class="span2">
+<div class="row center" style="margin:6px 0 10px 0">
+<button class="btn" style="display:none" id="readAnalyze">ID 📷</button>
+<button class="btn secondary" id="readAnalyzeFile">📷</button>
+<input type="file" id="dniCameraInput" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="dniFileInput" accept="image/*" style="display:none">
+</div>
+</div>
+<!-- 2) CAMPOS FILIACIÓN -->
+<div><label>Condición</label>
+<select id="Condicion">
+<option></option><option>Perjudicado</option><option>Testigo</option>
+</select>
+</div>
+<div><label>Teléfono</label><input id="Telefono" inputmode="numeric" pattern="[0-9 ]*"></div>
+<div><label>Nombre</label><input id="Nombre"></div>
+<div><label>Apellidos</label><input id="Apellidos"></div>
+<div><label>Tipo de documento</label><input id="Tipo"></div>
+<div><label>Nº documento</label><input id="Numero"></div>
+<div><label>Sexo</label>
+<select id="Sexo"><option></option><option>MASCULINO</option><option>FEMENINO</option></select>
+</div>
+<div><label>Nacionalidad</label><input id="Nacionalidad"></div>
+<div class="span2"><label>Nombre de los Padres</label><input id="Padres"></div>
+<div><label>Fecha de nacimiento</label><input id="Nacimiento"></div>
+<div><label>Lugar de nacimiento</label><input id="Lugar"></div>
+<div class="span2"><label>Domicilio</label><input id="Domicilio"></div>
+<!-- 3) LISTA / CONTADOR / AGREGAR -->
+<div class="span2 row center" style="margin-top:6px">
+<ul class="list" id="listaF"></ul>
+</div>
+<div class="span2 row center" style="margin-top:8px">
+<button class="btn" id="addFiliacion">👤 Agregar</button>
+</div>
+<div class="span2 row nowrap3 toolbar-center" style="margin-top:8px">
+<button class="btn" id="gptComparecencia" title="Abrir Denuncia">Comparecencia GPT</button>
+<button class="btn" id="integrarDoc" title="Pegar desde portapapeles">⬇️</button>
+</div>
+<!-- 6) DOC -->
+<div class="span2">
+<textarea id="Doc"></textarea>
+</div>
+<!-- 7) RESTO BOTONES (sin cifrado) -->
+<div class="span2 row center" style="margin-top:10px">
+<button class="btn" id="download">⬇️ Descargar</button>
+<button class="btn secondary broom" id="clearForm" title="Limpiar formulario">🧹</button>
+<button class="btn secondary" style="display:none" id="loadPlain">⬆️ Cargar</button>
+<input type="file" id="plainInput" accept=".json" style="display:none">
+</div>
+</div>
+</div>
+</div>
+<script src="provincias_es.js"></script>
+<script src="municipios.js"></script>
+<script src="paises.js"></script>
+<script src="calles.js"></script>
+<script src="parser.js"></script>
+<script>
+// UI / wiring (moved out of parser.js on purpose)
+function enforceCanonicalNacionalidad(){
+const el = document.getElementById('Nacionalidad');
+if (!el || !el.value) return;
+const raw0 = el.value.toString().trim();
+if (!raw0) return;
+const isoHit = iso3ToPaisName(raw0);
+const raw = isoHit || raw0;
+const canon = canonPais(raw);
+if (canon){
+el.value = tcase(canon);
+}
+}
+function enforceCanonicalLugarYDomicilio(){
+const hasProv = (__CANON.provMap && __CANON.provMap.size);
+const hasMuni = (__CANON.muniGlobal && __CANON.muniGlobal.size);
+if (!hasProv && !hasMuni) return;
+const lugarEl = document.getElementById('Lugar');
+const natEl = document.getElementById('Nacionalidad');
+const natRaw0 = (natEl && natEl.value) ? natEl.value.toString().trim() : "";
+const natIso  = iso3ToPaisName(natRaw0);
+const natCanon = canonPais(natIso || natRaw0);
+const natCanonNorm = _normKey(natCanon);
+const espNorm = _normKey(canonPais('ESPAÑA') || 'ESPAÑA');
+const natIsSpain = !!natCanon && (natCanonNorm === espNorm);
+if (lugarEl && (!lugarEl.value || !lugarEl.value.toString().trim())){
+if (natCanon && !natIsSpain){
+lugarEl.value = `${tcase(natCanon)}`;
+}
+}
+if (lugarEl && lugarEl.value){
+const raw = lugarEl.value.toString().trim();
+if (natCanon && !natIsSpain){
+const parts2 = raw.split(',').map(s=>s.trim()).filter(Boolean);
+const lastTok = parts2.length ? parts2[parts2.length-1] : raw;
+const isoHit = iso3ToPaisName(lastTok) || iso3ToPaisName(raw);
+const paisTry = canonPais(isoHit || lastTok) || canonPais(raw);
+const finalPais = (paisTry && _normKey(paisTry) !== natCanonNorm) ? paisTry : natCanon;
+lugarEl.value = `${tcase(finalPais)}`;
+} else {
+const parts = raw.split(',').map(s=>s.trim()).filter(Boolean);
+let munRaw = "", provRaw = "";
+if (parts.length >= 2){
+provRaw = parts[parts.length-1];
+munRaw  = parts.slice(0, parts.length-1).join(', ');
+} else if (parts.length === 1){
+const p = canonProvincia(parts[0]);
+if (p) provRaw = parts[0];
+else munRaw = parts[0];
+}
+const provCanon = provRaw ? canonProvincia(provRaw) : "";
+const munCanon  = munRaw ? canonMunicipio(munRaw, provCanon) : "";
+if (provCanon && munCanon){
+lugarEl.value = `${tcase(munCanon)}, ${tcase(provCanon)}`;
+} else if (provCanon && !munCanon){
+lugarEl.value = `${tcase(provCanon)}`;
+} else if (!provCanon && munCanon){
+lugarEl.value = `${tcase(munCanon)}`;
+} else {
+const parts2 = raw.split(',').map(s=>s.trim()).filter(Boolean);
+const lastTok = parts2.length ? parts2[parts2.length-1] : raw;
+const isoHit = iso3ToPaisName(lastTok) || iso3ToPaisName(raw);
+const paisTry = canonPais(isoHit || lastTok) || canonPais(raw);
+const finalPais = paisTry || natCanon;
+if (finalPais){
+lugarEl.value = `${tcase(finalPais)}`;
+}
+}
+}
+}
+const domEl = document.getElementById('Domicilio');
+if (domEl && domEl.value){
+const raw = domEl.value.toString().trim();
+const parts = raw.split(',').map(s=>s.trim()).filter(Boolean);
+if (parts.length >= 2){
+const provRaw = parts[parts.length-1];
+const munRaw  = parts[parts.length-2];
+const provCanon = canonProvincia(provRaw);
+const munCanon  = canonMunicipio(munRaw, provCanon);
+if (provCanon || munCanon){
+const newParts = parts.slice(0, -2);
+newParts.push(munCanon ? tcase(munCanon) : tcase(munRaw));
+newParts.push(provCanon ? tcase(provCanon) : tcase(provRaw));
+domEl.value = newParts.join(', ');
+}
+}
+}
+}
+function validateField(el, force=false){
+if (!el) return;
+const value = (el.value || "").trim();
+let ok = false;
+if (el.tagName === "INPUT" || el.tagName === "TEXTAREA"){
+ok = value.length >= 2;
+} else if (el.tagName === "SELECT"){
+ok = value !== "";
+}
+const touched = el.dataset.touched === "1";
+if (!force && !touched && !value){
+el.classList.remove("valid","invalid");
+return;
+}
+el.classList.toggle("valid", ok);
+el.classList.toggle("invalid", !ok);
+}
+function validateAll(){
+["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
+.forEach(id=>{
+const el = document.getElementById(id);
+if (!el) return;
+validateField(el);
+});
+}
+function updateCount(){
+renderLista();
+}
+function renderLista(){
+const ul = document.getElementById('listaF');
+ul.innerHTML = "";
+expediente.filiaciones.forEach((f,i)=>{
+const li = document.createElement('li');
+const label = `${i+1}. ${f.Apellidos || '(sin apellidos)'}${f.Nombre ? ', '+f.Nombre : ''}`;
+li.textContent = label;
+const btn = document.createElement('button');
+btn.className = "btn secondary";
+btn.textContent = "Editar";
+btn.onclick = ()=> {
+fillFormFromParsed(f);
+["Telefono","Condicion"].forEach(id=>{
+const el=document.getElementById(id);
+if (id==="Telefono" && f["Teléfono"]!=null) el.value = f["Teléfono"];
+if (id==="Condicion" && f["Condición"]!=null) el.value = f["Condición"];
+});
+expediente.filiaciones.splice(i,1);
+updateCount();
+};
+li.appendChild(btn);
+ul.appendChild(li);
+});
+}
+function getFormAsFiliacion(){
+return {
+"Nombre": document.getElementById('Nombre').value,
+"Apellidos": (document.getElementById('Apellidos').value||"").toUpperCase(),
+"Tipo de documento": document.getElementById('Tipo').value,
+"Nº Documento": document.getElementById('Numero').value,
+"Sexo": document.getElementById('Sexo').value,
+"Nacionalidad": document.getElementById('Nacionalidad').value,
+"Nombre de los Padres": document.getElementById('Padres').value,
+"Fecha de nacimiento": document.getElementById('Nacimiento').value,
+"Lugar de nacimiento": document.getElementById('Lugar').value,
+"Domicilio": document.getElementById('Domicilio').value,
+"Teléfono": document.getElementById('Telefono').value,
+"Condición": document.getElementById('Condicion').value
+};
+}
+function fillFormFromParsed(p){
+(function(){
+const n0 = (p && p.Nombre != null) ? String(p.Nombre).trim() : "";
+const a0 = (p && p.Apellidos != null) ? String(p.Apellidos).trim() : "";
+const split2 = (s) => String(s || "").trim().split(/\s+/).filter(Boolean);
+if (!n0 && a0) {
+const toks = split2(a0);
+if (toks.length === 2) {
+p.Nombre = tcase(toks[0]);
+p.Apellidos = String(toks[1]).toUpperCase();
+}
+}
+if (!a0 && n0) {
+const toks = split2(n0);
+if (toks.length === 2) {
+p.Nombre = tcase(toks[0]);
+p.Apellidos = String(toks[1]).toUpperCase();
+}
+}
+})();
+if(p.Nombre!=null)  document.getElementById('Nombre').value = p.Nombre;
+if(p.Apellidos!=null) document.getElementById('Apellidos').value = p.Apellidos;
+if(p["Tipo de documento"]!=null) document.getElementById('Tipo').value = p["Tipo de documento"];
+if(p["Nº Documento"]!=null) document.getElementById('Numero').value = p["Nº Documento"];
+if(p.Sexo!=null) document.getElementById('Sexo').value = p.Sexo;
+if(p.Nacionalidad!=null) document.getElementById('Nacionalidad').value = p.Nacionalidad;
+if(p["Nombre de los Padres"]!=null) document.getElementById('Padres').value = p["Nombre de los Padres"];
+if(p["Fecha de nacimiento"]!=null) document.getElementById('Nacimiento').value = p["Fecha de nacimiento"];
+if(p["Lugar de nacimiento"]!=null) document.getElementById('Lugar').value = p["Lugar de nacimiento"];
+if(p.Domicilio!=null) document.getElementById('Domicilio').value = p.Domicilio;
+for (const id of ['Nombre','Apellidos','Padres','Lugar','Domicilio','Numero']){
+document.getElementById(id)?.classList.remove('uncertain');
+}
+if (p._flags){
+if (p._flags.Nombre) document.getElementById('Nombre')?.classList.add('uncertain');
+if (p._flags.Apellidos) document.getElementById('Apellidos')?.classList.add('uncertain');
+if (p._flags.Padres) document.getElementById('Padres')?.classList.add('uncertain');
+if (p._flags.Lugar) document.getElementById('Lugar')?.classList.add('uncertain');
+if (p._flags.Domicilio) document.getElementById('Domicilio')?.classList.add('uncertain');
+if (p._flags.Numero) document.getElementById('Numero')?.classList.add('uncertain');
+}
+enforceCanonicalNacionalidad();
+enforceCanonicalLugarYDomicilio();
+validateAll();
+}
+function clearFormOnly(){
+["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
+.forEach(id=>{
+const el=document.getElementById(id);
+if (el){ el.value=""; el.classList.remove('uncertain'); }
+});
+const ta = document.getElementById('Doc');
+if (ta) ta.value = "";
+updateCount(); validateAll();
+}
+function processOCR(ocr){
+if(!ocr.trim()){ alert("Portapapeles vacío. Copia el OCR primero."); return; }
+const parsed = parseDocument(ocr);
+fillFormFromParsed(parsed);
+}
+const btnFoto = document.getElementById('readAnalyze');
+const btnArchivo = document.getElementById('readAnalyzeFile');
+const inputFoto = document.getElementById('dniCameraInput');
+const inputArchivo = document.getElementById('dniFileInput');
+if (btnFoto && inputFoto){
+btnFoto.addEventListener('click', () => {
+inputFoto.value = "";
+inputFoto.click();
+});
+}
+if (btnArchivo && inputArchivo){
+btnArchivo.addEventListener('click', () => {
+inputArchivo.value = "";
+inputArchivo.click();
+});
+}
+document.getElementById('gptComparecencia').addEventListener('click', ()=>{
+window.open('https://chatgpt.com/g/g-69492f8f5cbc8191bf094b7d16bdcb4b-intervencion','_blank','noopener');
+});
+async function readFromClipboard(){
+try{ const txt = await navigator.clipboard.readText(); return txt || ""; }
+catch{ const m = prompt("Pega manualmente el texto:"); return m || ""; }
+}
+document.getElementById('integrarDoc').addEventListener('click', async ()=>{
+const txt = await readFromClipboard();
+if (!txt.trim()) { alert("Portapapeles vacío."); return; }
+document.getElementById('Doc').value = txt;
+expediente.doc = txt;
+});
+document.getElementById('addFiliacion').addEventListener('click', ()=>{
+const f = getFormAsFiliacion();
+const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
+if (!anyVal){ alert("Ficha vacía."); return; }
+const condEl = document.getElementById('Condicion');
+const cond = (condEl.value || "").trim();
+if (!cond){
+alert("Selecciona la Condición (obligatoria) antes de agregar la filiación.");
+condEl.focus();
+condEl.classList.add('invalid');
+return;
+} else {
+condEl.classList.remove('invalid');
+condEl.classList.add('valid');
+}
+expediente.filiaciones.push(f);
+updateCount();
+clearFormOnly();
+});
+document.getElementById('clearForm').addEventListener('click', clearFormOnly);
+document.getElementById('Doc').addEventListener('input', (e)=>{ expediente.doc = e.target.value; });
+const btnDownload = document.getElementById('download');
+if (btnDownload){
+btnDownload.addEventListener('click', ()=>{
+const f = getFormAsFiliacion();
+const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
+if (anyVal){
+alert(
+"Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
+"Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
+);
+return;
+}
+expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
+const data = { doc: expediente.doc, filiaciones: expediente.filiaciones };
+try{
+const jsonStr = JSON.stringify(data, null, 2);
+const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+const url = URL.createObjectURL(blob);
+const d = new Date(); const pad = n => String(n).padStart(2,'0');
+const fname = `Proyecto ${pad(d.getHours())}-${pad(d.getMinutes())} ${pad(d.getDate())}_${pad(d.getMonth()+1)}_${d.getFullYear()}.json`;
+const a = document.createElement('a');
+a.href = url;
+a.download = fname;
+a.click();
+URL.revokeObjectURL(url);
+}catch(err){
+console.error("Error descargando el proyecto:", err);
+alert("No se ha podido descargar el proyecto.");
+}
+});
+}
+const btnLoadPlain = document.getElementById('loadPlain');
+const inputPlain   = document.getElementById('plainInput');
+if (btnLoadPlain && inputPlain){
+btnLoadPlain.addEventListener('click', () => {
+inputPlain.value = "";
+inputPlain.click();
+});
+inputPlain.addEventListener('change', (e) => {
+const file = e.target.files && e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (ev) => {
+try{
+const text = (ev.target.result || "").toString().trim();
+if (!text){
+alert("Archivo vacío o no válido.");
+return;
+}
+const data = JSON.parse(text);
+if (!data || typeof data !== "object") throw new Error("Formato inesperado");
+expediente.doc = data.doc || "";
+expediente.filiaciones = Array.isArray(data.filiaciones) ? data.filiaciones : [];
+["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
+.forEach(id => {
+const el = document.getElementById(id);
+if (el){ el.value = ""; el.classList.remove("uncertain","valid","invalid"); }
+});
+const docEl = document.getElementById('Doc');
+if (docEl) docEl.value = expediente.doc;
+updateCount();
+validateAll();
+}catch(err){
+console.error("Error al cargar el proyecto:", err);
+alert("No se ha podido cargar el proyecto. JSON inválido o archivo dañado.");
+}
+};
+reader.readAsText(file);
+});
+}
+["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"].forEach(id => {
+const el = document.getElementById(id);
+if (!el) return;
+const markTouchedAndValidate = (force=false)=>{
+el.dataset.touched = "1";
+validateField(el, force);
+};
+el.addEventListener("blur", () => markTouchedAndValidate(true));
+if (el.tagName === "SELECT"){
+el.addEventListener("change", () => markTouchedAndValidate(true));
+}
+});
+updateCount();
+validateAll();
+initMunicipios();
+initNombres();
+</script>
+<script>
+let OCR_API_URL_DEFAULT = "https://ocr-vision-1054102077894.europe-west1.run.app";
+let OCR_API_URL = OCR_API_URL_DEFAULT;
+const AUTH_LS_KEY = "DECLARATRON_AUTH_V1";
+let AUTH = { group:"", pass:"", apiUrl:"" };
+function loadAuth(){
+try{
+const raw = localStorage.getItem(AUTH_LS_KEY);
+if (!raw) return;
+const obj = JSON.parse(raw);
+if (obj && typeof obj === 'object'){
+AUTH.group = String(obj.group||'').trim();
+AUTH.pass  = String(obj.pass||'').trim();
+AUTH.apiUrl= String(obj.apiUrl||'').trim();
+if (AUTH.apiUrl) OCR_API_URL = AUTH.apiUrl;
+}
+}catch(_){/* noop */}
+}
+function saveAuth(){
+localStorage.setItem(AUTH_LS_KEY, JSON.stringify(AUTH));
+}
+function clearAuth(){
+localStorage.removeItem(AUTH_LS_KEY);
+AUTH = { group:"", pass:"", apiUrl:"" };
+OCR_API_URL = OCR_API_URL_DEFAULT;
+}
+function authHeaders(){
+const h = {};
+if (AUTH.group) h["x-group"] = AUTH.group;
+if (AUTH.pass)  h["x-group-pass"] = AUTH.pass;
+return h;
+}
+function updateAuthUI(){
+const badge = document.getElementById('authBadge');
+const btnLogout = document.getElementById('btnLogout');
+if (!badge) return;
+const ok = !!(AUTH.group && AUTH.pass);
+badge.textContent = ok ? `Acceso: ${AUTH.group}` : 'Sin acceso';
+if (btnLogout) btnLogout.style.display = ok ? '' : 'none';
+}
+function openAuthModal(){
+const modal = document.getElementById('authModal');
+if (!modal) return;
+modal.classList.add('open');
+modal.setAttribute('aria-hidden','false');
+const g = document.getElementById('authGroup');
+const p = document.getElementById('authPass');
+const u = document.getElementById('authApiUrl');
+if (g) g.value = AUTH.group || '';
+if (p) p.value = AUTH.pass  || '';
+if (u) u.value = (AUTH.apiUrl || OCR_API_URL_DEFAULT);
+setTimeout(()=>{ g?.focus(); }, 0);
+}
+function closeAuthModal(){
+const modal = document.getElementById('authModal');
+if (!modal) return;
+modal.classList.remove('open');
+modal.setAttribute('aria-hidden','true');
+}
+function wireAuthUI(){
+document.getElementById('btnAuth')?.addEventListener('click', openAuthModal);
+document.getElementById('btnLogout')?.addEventListener('click', ()=>{
+clearAuth();
+updateAuthUI();
+alert('Acceso borrado.');
+});
+document.getElementById('authCancel')?.addEventListener('click', closeAuthModal);
+document.getElementById('authModal')?.addEventListener('click', (e)=>{
+if (e.target && e.target.id === 'authModal') closeAuthModal();
+});
+document.getElementById('authSave')?.addEventListener('click', ()=>{
+const g = (document.getElementById('authGroup')?.value || '').trim();
+const p = (document.getElementById('authPass')?.value  || '').trim();
+const u = (document.getElementById('authApiUrl')?.value|| '').trim();
+AUTH.group = g;
+AUTH.pass  = p;
+AUTH.apiUrl= u;
+OCR_API_URL = AUTH.apiUrl || OCR_API_URL_DEFAULT;
+saveAuth();
+updateAuthUI();
+closeAuthModal();
+if (!AUTH.group || !AUTH.pass){
+alert('Guardado. Ojo: sin grupo/contraseña no podrás usar el OCR.');
+}
+});
+}
+loadAuth();
+const MAX_IMAGE_BYTES = 400 * 1024;
+const TARGET_LONG_EDGE = 2200;
+function mapBackendToFilFields(p){
+const safe = v => (v == null ? "" : String(v));
+const sanitizeKeepComma = (s) => safe(s)
+.replace(/[^0-9A-Za-zÀ-ÖØ-öø-ÿÑñ\s,\/\-\.]/g, '')
+.replace(/\s+/g, ' ')
+.trim();
+const mrz2 = (p && Array.isArray(p.mrz) && p.mrz[1]) ? String(p.mrz[1]).replace(/\s+/g,'') : "";
+const normSexo = (v)=>{
+const s = safe(v).trim().toUpperCase();
+if (!s) return "";
+if (s.startsWith('F')) return 'FEMENINO';
+if (s.startsWith('M')) return 'MASCULINO';
+return (s === 'FEMENINO' || s === 'MASCULINO') ? s : "";
+};
+let sexo = normSexo(p?.final?.Sexo || p?.Sexo || p?.sexo || "");
+if (!sexo && mrz2) {
+const isPassport = String(p?.tipo_documento || '').toUpperCase() === 'PASAPORTE' || /^P</i.test(String((p?.mrz && p.mrz[0]) || ''));
+const sexoCode = isPassport
+? ((mrz2.length >= 21) ? mrz2.charAt(20).toUpperCase() : "")
+: ((mrz2.length >= 8)  ? mrz2.charAt(7).toUpperCase()  : "");
+sexo = (sexoCode === 'F') ? 'FEMENINO' : (sexoCode === 'M') ? 'MASCULINO' : '';
+}
+const lugar = (p?.lugar_nacimiento && String(p.lugar_nacimiento).trim())
+? String(p.lugar_nacimiento).trim()
+: [p?.lugar_nacimiento_municipio, p?.lugar_nacimiento_provincia]
+.filter(Boolean)
+.join(', ');
+let _Nombre = sanitizeKeepComma(p?.nombre || '');
+let _Apellidos = sanitizeKeepComma(p?.apellidos || '').toUpperCase();
+const _Tipo = sanitizeKeepComma(p?.tipo_documento || 'DNI');
+if (/\bNIE\b/i.test(_Tipo)) {
+const isTreatment = (s)=>{
+const t = String(s||'').trim().toUpperCase().replace(/\s+/g,'');
+if (!t) return true;
+const t2 = t.replace(/[^A-Z]/g,'');
+return t2 === 'D' || t2 === 'DD' || t2 === 'DA' || t2 === 'DDA';
+};
+if ((isTreatment(_Nombre) || !_Nombre) && _Apellidos) {
+const toks = _Apellidos.trim().split(/\s+/).filter(Boolean);
+if (toks.length >= 4) {
+_Nombre = toks.slice(0,2).join(' ');
+_Apellidos = toks.slice(2).join(' ');
+}
+}
+}
+return {
+Nombre: _Nombre,
+Apellidos: _Apellidos,
+"Tipo de documento": _Tipo,
+"Nº Documento": sanitizeKeepComma(p?.numero_documento || ''),
+Nacionalidad: sanitizeKeepComma(p?.nacionalidad || ''),
+"Fecha de nacimiento": sanitizeKeepComma(p?.fecha_nacimiento || ''),
+"Lugar de nacimiento": sanitizeKeepComma(lugar),
+"Nombre de los Padres": sanitizeKeepComma(safe(p?.hijos_de || '').replace(/\s*\/\s*/g, ' y ')),
+Domicilio: sanitizeKeepComma(p?.domicilio || ''),
+Sexo: sexo,
+_flags: {}
+};
+}
+async function handleDniImageInputChange(e){
+const file = e.target.files && e.target.files[0];
+if (!file) return;
+if (!ensureAuthOrPrompt()) return;
+try {
+const dataUrl = await fileToDataUrl(file);
+const res = await fetch(OCR_API_URL, {
+method: "POST",
+headers: { "Content-Type": "application/json", ...authHeaders() },
+body: JSON.stringify({ imageBase64: dataUrl })
+});
+const text = await res.text();
+if (!res.ok) throw new Error(text);
+const json = JSON.parse(text);
+if (!json || json.ok !== true || !json.parsed) throw new Error("Respuesta inválida del backend");
+const mapped = mapBackendToFilFields(json.parsed || {});
+fillFormFromParsed(mapped);
+} catch (err) {
+console.error(err);
+try{
+const docEl = document.getElementById('Doc');
+if (docEl) docEl.value = "[OCR ERROR]" + String(err?.message || err);
+}catch(_){/* no-op */}
+alert("Error al procesar la imagen del DNI. Revisa consola.");
+}
+}
+document.getElementById('dniCameraInput')?.addEventListener('change', handleDniImageInputChange);
+document.getElementById('dniFileInput')?.addEventListener('change', handleDniImageInputChange);
+function fileToDataUrl(file) {
+return new Promise((resolve, reject) => {
+const img = new Image();
+const url = URL.createObjectURL(file);
+img.onload = async () => {
+try {
+let w = img.width;
+let h = img.height;
+const longEdge = Math.max(w, h);
+if (longEdge > TARGET_LONG_EDGE) {
+const scale = TARGET_LONG_EDGE / longEdge;
+w = Math.round(w * scale);
+h = Math.round(h * scale);
+}
+const canvas = document.createElement("canvas");
+canvas.width = w;
+canvas.height = h;
+const ctx = canvas.getContext("2d", { alpha: false });
+ctx.drawImage(img, 0, 0, w, h);
+let quality = 0.9;
+let dataUrl = canvas.toDataURL("image/jpeg", quality);
+while (dataUrl.length * 0.75 > MAX_IMAGE_BYTES && quality > 0.5) {
+quality -= 0.05;
+dataUrl = canvas.toDataURL("image/jpeg", quality);
+}
+URL.revokeObjectURL(url);
+resolve(dataUrl);
+} catch (e) {
+URL.revokeObjectURL(url);
+reject(e);
+}
+};
+img.onerror = (e) => {
+URL.revokeObjectURL(url);
+reject(e);
+};
+img.src = url;
+});
+}
+window.addEventListener('DOMContentLoaded', ()=>{
+wireAuthUI();
+updateAuthUI();
+});
+function ensureAuthOrPrompt(){
+if (AUTH.group && AUTH.pass) return true;
+openAuthModal();
+alert('Configura el acceso (grupo/contraseña) para usar el OCR.');
+return false;
+}
+</script>
+<!-- Modal de acceso -->
+<div class="modal" id="authModal" aria-hidden="true">
+<div class="panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+<h2 id="authTitle">Acceso</h2>
+<div class="fields2">
+<div>
+<label>Usuario</label>
+<input id="authGroup" autocomplete="username" placeholder="••••••••">
+</div>
+<div>
+<label>Contraseña</label>
+<input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••">
+</div>
+<div class="span2 row center" style="margin-top:10px">
+<button class="btn" id="authSave">Guardar</button>
+<button class="btn secondary" id="authCancel">Cancelar</button>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
