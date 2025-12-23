@@ -90,7 +90,7 @@
 
   .brandTitle{
     margin: 0;
-    font-size: 34px;
+    font-size: 40px;
     font-weight: 800;
     letter-spacing: .4px;
     display: inline-flex;
@@ -673,6 +673,21 @@ validateField(el);
 function updateCount(){
 renderLista();
 }
+
+// Persistencia local SOLO de filiaciones (NO doc, NO servicios)
+const FILI_LS_KEY = 'LABEJAR_FILIACIONES_V1';
+function saveFiliaciones(){
+  try{ localStorage.setItem(FILI_LS_KEY, JSON.stringify(expediente.filiaciones || [])); }catch(_){/* noop */}
+}
+function loadFiliaciones(){
+  try{
+    const raw = localStorage.getItem(FILI_LS_KEY);
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) expediente.filiaciones = arr;
+  }catch(_){/* noop */}
+}
+
 function renderLista(){
 const ul = document.getElementById('listaF');
 ul.innerHTML = "";
@@ -690,8 +705,9 @@ const el=document.getElementById(id);
 if (id==="Telefono" && f["Teléfono"]!=null) el.value = f["Teléfono"];
 if (id==="Condicion" && f["Condición"]!=null) el.value = f["Condición"];
 });
-expediente.filiaciones.splice(i,1);
-updateCount();
+    expediente.filiaciones.splice(i,1);
+    saveFiliaciones();
+    updateCount();
 };
 li.appendChild(btn);
 ul.appendChild(li);
@@ -782,6 +798,7 @@ function clearFormOnly(){
   // Vaciar también las filiaciones agregadas
   expediente.filiaciones = [];
   updateCount();
+  try{ localStorage.removeItem(FILI_LS_KEY); }catch(_){/* noop */}
 }
 function processOCR(ocr){
 if(!ocr.trim()){ alert("Portapapeles vacío. Copia el OCR primero."); return; }
@@ -821,6 +838,7 @@ condEl.classList.remove('invalid');
 condEl.classList.add('valid');
 }
 expediente.filiaciones.push(f);
+saveFiliaciones();
 updateCount();
 clearFormFieldsOnly();
 });
@@ -1127,6 +1145,7 @@ if (nac){
     nac.value = v;
   });
 }
+loadFiliaciones();
 updateCount();
 validateAll();
 initMunicipios();
