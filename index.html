@@ -234,7 +234,11 @@ justify-content: center;
   input, select{ height: 38px; }
   textarea{ min-height: 140px; resize: vertical; }
   input:focus, select:focus, textarea:focus{ border-color: rgba(10,132,255,.65); }
-
+@media (max-width: 520px){
+  input, select, textarea{
+    font-size: 16px;
+  }
+}
   select{
     -webkit-appearance: none;
     appearance: none;
@@ -490,7 +494,11 @@ justify-content: center;
 <div><label>Sexo</label>
 <select id="Sexo"><option></option><option>MASCULINO</option><option>FEMENINO</option></select>
 </div>
-<div><label>Nacionalidad</label><input id="Nacionalidad"></div>
+<div>
+  <label>Nacionalidad</label>
+  <input id="Nacionalidad" list="dlNacionalidad" autocomplete="off" spellcheck="false" autocapitalize="off" autocorrect="off">
+  <datalist id="dlNacionalidad"></datalist>
+</div>
 <div class="span2"><label>Nombre de los Padres</label><input id="Padres"></div>
 <div>
   <label>Fecha de nacimiento</label>
@@ -548,16 +556,19 @@ justify-content: center;
 <script>
 // UI / wiring (moved out of parser.js on purpose)
 function enforceCanonicalNacionalidad(){
-const el = document.getElementById('Nacionalidad');
-if (!el || !el.value) return;
-const raw0 = el.value.toString().trim();
-if (!raw0) return;
-const isoHit = iso3ToPaisName(raw0);
-const raw = isoHit || raw0;
-const canon = canonPais(raw);
-if (canon){
-el.value = tcase(canon);
-}
+  const el = document.getElementById('Nacionalidad');
+  if (!el || !el.value) return;
+  const raw0 = el.value.toString().trim();
+  if (!raw0) return;
+  const isoHit = iso3ToPaisName(raw0);
+  const raw = isoHit || raw0;
+  const canon = canonPais(raw);
+  if (canon){
+    el.value = String(canon).toUpperCase();
+  } else {
+    // Si no hay canon, aun así normaliza a mayúsculas
+    el.value = String(raw0).toUpperCase();
+  }
 }
 function enforceCanonicalLugarYDomicilio(){
 const hasProv = (__CANON.provMap && __CANON.provMap.size);
@@ -703,50 +714,50 @@ return {
 };
 }
 function fillFormFromParsed(p){
-(function(){
-const n0 = (p && p.Nombre != null) ? String(p.Nombre).trim() : "";
-const a0 = (p && p.Apellidos != null) ? String(p.Apellidos).trim() : "";
-const split2 = (s) => String(s || "").trim().split(/\s+/).filter(Boolean);
-if (!n0 && a0) {
-const toks = split2(a0);
-if (toks.length === 2) {
-p.Nombre = tcase(toks[0]);
-p.Apellidos = String(toks[1]).toUpperCase();
-}
-}
-if (!a0 && n0) {
-const toks = split2(n0);
-if (toks.length === 2) {
-p.Nombre = tcase(toks[0]);
-p.Apellidos = String(toks[1]).toUpperCase();
-}
-}
-})();
-if(p.Nombre!=null)  document.getElementById('Nombre').value = p.Nombre;
-if(p.Apellidos!=null) document.getElementById('Apellidos').value = p.Apellidos;
-if(p["Tipo de documento"]!=null) document.getElementById('Tipo').value = p["Tipo de documento"];
-if(p["Nº Documento"]!=null) document.getElementById('Numero').value = p["Nº Documento"];
-if(p.Sexo!=null) document.getElementById('Sexo').value = p.Sexo;
-if(p.Nacionalidad!=null) document.getElementById('Nacionalidad').value = p.Nacionalidad;
-if (natElFix && /^españa$/i.test(natElFix.value.trim())) natElFix.value='España';
-if(p["Nombre de los Padres"]!=null) document.getElementById('Padres').value = p["Nombre de los Padres"];
-if(p["Fecha de nacimiento"]!=null) document.getElementById('Nacimiento').value = p["Fecha de nacimiento"];
-if(p["Lugar de nacimiento"]!=null) document.getElementById('Lugar').value = p["Lugar de nacimiento"];
-if(p.Domicilio!=null) document.getElementById('Domicilio').value = p.Domicilio;
-for (const id of ['Nombre','Apellidos','Padres','Lugar','Domicilio','Numero']){
-document.getElementById(id)?.classList.remove('uncertain');
-}
-if (p._flags){
-if (p._flags.Nombre) document.getElementById('Nombre')?.classList.add('uncertain');
-if (p._flags.Apellidos) document.getElementById('Apellidos')?.classList.add('uncertain');
-if (p._flags.Padres) document.getElementById('Padres')?.classList.add('uncertain');
-if (p._flags.Lugar) document.getElementById('Lugar')?.classList.add('uncertain');
-if (p._flags.Domicilio) document.getElementById('Domicilio')?.classList.add('uncertain');
-if (p._flags.Numero) document.getElementById('Numero')?.classList.add('uncertain');
-}
-enforceCanonicalNacionalidad();
-enforceCanonicalLugarYDomicilio();
-validateAll();
+  (function(){
+    const n0 = (p && p.Nombre != null) ? String(p.Nombre).trim() : "";
+    const a0 = (p && p.Apellidos != null) ? String(p.Apellidos).trim() : "";
+    const split2 = (s) => String(s || "").trim().split(/\s+/).filter(Boolean);
+    if (!n0 && a0) {
+      const toks = split2(a0);
+      if (toks.length === 2) {
+        p.Nombre = tcase(toks[0]);
+        p.Apellidos = String(toks[1]).toUpperCase();
+      }
+    }
+    if (!a0 && n0) {
+      const toks = split2(n0);
+      if (toks.length === 2) {
+        p.Nombre = tcase(toks[0]);
+        p.Apellidos = String(toks[1]).toUpperCase();
+      }
+    }
+  })();
+  if(p.Nombre!=null)  document.getElementById('Nombre').value = p.Nombre;
+  if(p.Apellidos!=null) document.getElementById('Apellidos').value = p.Apellidos;
+  if(p["Tipo de documento"]!=null) document.getElementById('Tipo').value = p["Tipo de documento"];
+  if(p["Nº Documento"]!=null) document.getElementById('Numero').value = p["Nº Documento"];
+  if(p.Sexo!=null) document.getElementById('Sexo').value = p.Sexo;
+  if(p.Nacionalidad!=null) document.getElementById('Nacionalidad').value = String(p.Nacionalidad).toUpperCase();
+  if (natElFix && /^españa$/i.test(natElFix.value.trim())) natElFix.value='España';
+  if(p["Nombre de los Padres"]!=null) document.getElementById('Padres').value = p["Nombre de los Padres"];
+  if(p["Fecha de nacimiento"]!=null) document.getElementById('Nacimiento').value = p["Fecha de nacimiento"];
+  if(p["Lugar de nacimiento"]!=null) document.getElementById('Lugar').value = p["Lugar de nacimiento"];
+  if(p.Domicilio!=null) document.getElementById('Domicilio').value = p.Domicilio;
+  for (const id of ['Nombre','Apellidos','Padres','Lugar','Domicilio','Numero']){
+    document.getElementById(id)?.classList.remove('uncertain');
+  }
+  if (p._flags){
+    if (p._flags.Nombre) document.getElementById('Nombre')?.classList.add('uncertain');
+    if (p._flags.Apellidos) document.getElementById('Apellidos')?.classList.add('uncertain');
+    if (p._flags.Padres) document.getElementById('Padres')?.classList.add('uncertain');
+    if (p._flags.Lugar) document.getElementById('Lugar')?.classList.add('uncertain');
+    if (p._flags.Domicilio) document.getElementById('Domicilio')?.classList.add('uncertain');
+    if (p._flags.Numero) document.getElementById('Numero')?.classList.add('uncertain');
+  }
+  enforceCanonicalNacionalidad();
+  enforceCanonicalLugarYDomicilio();
+  validateAll();
 }
 function clearFormFieldsOnly(){
   ["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"]
@@ -883,7 +894,50 @@ try{
 }catch(_){}
 setScreen(__screen);
 const natElFix = document.getElementById('Nacionalidad');
-if (natElFix){ const fix=()=>{ if (/^españa$/i.test(natElFix.value.trim())) natElFix.value='España'; }; natElFix.addEventListener('input', fix); natElFix.addEventListener('change', fix); natElFix.addEventListener('blur', fix); }
+const natDL = document.getElementById('dlNacionalidad');
+
+function updateNatSuggestions(){
+  if (!natElFix || !natDL) return;
+  const q = (natElFix.value || '').trim();
+  if (q.length < 3){ natDL.innerHTML = ''; return; }
+  const P = window.PAISES;
+  const list = [];
+  if (P){
+    if (Array.isArray(P)){
+      list.push(...P);
+    } else {
+      if (Array.isArray(P.featured)) list.push(...P.featured);
+      if (Array.isArray(P.groups)){
+        for (const g of P.groups){
+          if (g && Array.isArray(g.items)) list.push(...g.items);
+        }
+      }
+    }
+  }
+  const qn = _normKey(q);
+  const hits = [];
+  for (const raw of list){
+    const name = String(canonPais(String(raw)) || String(raw)).toUpperCase();
+    if (_normKey(name).includes(qn)) hits.push(name);
+    if (hits.length >= 25) break;
+  }
+  natDL.innerHTML = hits.map(v => `<option value="${v}"></option>`).join('');
+}
+
+if (natElFix){
+  const fix = ()=>{
+    if (!natElFix.value) return;
+    // forzar siempre mayúsculas
+    natElFix.value = natElFix.value.toUpperCase();
+    enforceCanonicalNacionalidad();
+  };
+  natElFix.addEventListener('input', ()=>{
+    natElFix.value = natElFix.value.toUpperCase();
+    updateNatSuggestions();
+  });
+  natElFix.addEventListener('change', ()=>{ fix(); updateNatSuggestions(); });
+  natElFix.addEventListener('blur', fix);
+}
 const btnDownload = document.getElementById('download');
 
 // === AES-GCM (compat CompaSC loadEncrypted): base64( salt[16] + iv[12] + ciphertext ) ===
@@ -1063,6 +1117,16 @@ if (el.tagName === "SELECT"){
 el.addEventListener("change", () => markTouchedAndValidate(true));
 }
 });
+// Formato automático dd/mm/aaaa (solo números)
+const nac = document.getElementById('Nacimiento');
+if (nac){
+  nac.addEventListener('input', ()=>{
+    let v = nac.value.replace(/\D/g,'').slice(0,8);
+    if (v.length > 4) v = v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+    else if (v.length > 2) v = v.slice(0,2)+'/'+v.slice(2);
+    nac.value = v;
+  });
+}
 updateCount();
 validateAll();
 initMunicipios();
