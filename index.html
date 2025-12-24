@@ -232,6 +232,11 @@ justify-content: center;
   }
 
   input, select{ height: 38px; }
+  select{
+  line-height: normal;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
   textarea{ min-height: 140px; resize: vertical; }
   input:focus, select:focus, textarea:focus{ border-color: rgba(10,132,255,.65); }
 @media (max-width: 520px){
@@ -1183,6 +1188,23 @@ if (AUTH.group) h["x-group"] = AUTH.group;
 if (AUTH.pass)  h["x-group-pass"] = AUTH.pass;
 return h;
 }
+
+// Nueva función: validar credenciales contra backend
+async function authCheckNow(showAlert=true){
+  try{
+    const base = (OCR_API_URL || OCR_API_URL_DEFAULT || '').replace(/\/+$/,'');
+    const r = await fetch(base + '/auth-check', {
+      method: 'GET',
+      headers: authHeaders()
+    });
+    const txt = await r.text();
+    if (!r.ok) throw new Error(txt);
+    return true;
+  }catch(e){
+    if (showAlert) alert('Acceso no válido: ' + String(e?.message || e));
+    return false;
+  }
+}
 function updateAuthUI(){
   const btnAuth = document.getElementById('btnAuth');
   const btnLogout = document.getElementById('btnLogout');
@@ -1221,20 +1243,32 @@ document.getElementById('authCancel')?.addEventListener('click', closeAuthModal)
 document.getElementById('authModal')?.addEventListener('click', (e)=>{
 if (e.target && e.target.id === 'authModal') closeAuthModal();
 });
-document.getElementById('authSave')?.addEventListener('click', ()=>{
-const g = (document.getElementById('authGroup')?.value || '').trim();
-const p = (document.getElementById('authPass')?.value  || '').trim();
-const u = (document.getElementById('authApiUrl')?.value|| '').trim();
-AUTH.group = g;
-AUTH.pass  = p;
-AUTH.apiUrl= u;
-OCR_API_URL = AUTH.apiUrl || OCR_API_URL_DEFAULT;
-saveAuth();
-updateAuthUI();
-closeAuthModal();
-if (!AUTH.group || !AUTH.pass){
-alert('Guardado. Ojo: sin grupo/contraseña no podrás usar el OCR.');
-}
+document.getElementById('authSave')?.addEventListener('click', async ()=>{
+  const g = (document.getElementById('authGroup')?.value || '').trim();
+  const p = (document.getElementById('authPass')?.value  || '').trim();
+  const u = (document.getElementById('authApiUrl')?.value|| '').trim();
+
+  // aplicar provisionalmente
+  const prev = { ...AUTH };
+  const prevUrl = OCR_API_URL;
+
+  AUTH.group = g;
+  AUTH.pass  = p;
+  AUTH.apiUrl= u;
+  OCR_API_URL = AUTH.apiUrl || OCR_API_URL_DEFAULT;
+
+  // VALIDAR CONTRA BACKEND AHORA (no en OCR)
+  const ok = await authCheckNow(true);
+  if (!ok){
+    AUTH = prev;
+    OCR_API_URL = prevUrl;
+    updateAuthUI();
+    return; // no cerrar modal
+  }
+
+  saveAuth();
+  updateAuthUI();
+  closeAuthModal();
 });
 }
 loadAuth();
@@ -1366,9 +1400,18 @@ reject(e);
 img.src = url;
 });
 }
-window.addEventListener('DOMContentLoaded', ()=>{
-wireAuthUI();
-updateAuthUI();
+window.addEventListener('DOMContentLoaded', async ()=>{
+  wireAuthUI();
+  updateAuthUI();
+  // si hay credenciales guardadas, validarlas al cargar
+  if (AUTH.group && AUTH.pass){
+    const ok = await authCheckNow(false);
+    if (!ok){
+      clearAuth();
+      updateAuthUI();
+      alert('Acceso guardado inválido. Reconfigura usuario/contraseña.');
+    }
+  }
 });
 function ensureAuthOrPrompt(){
 if (AUTH.group && AUTH.pass) return true;
