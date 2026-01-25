@@ -164,6 +164,21 @@ justify-content: center;
     height: calc(100dvh - 120px);
   }
 
+  /* Servicios: recortar la tarjeta por abajo para que el Logout quede fuera del contorno */
+  body.inServicios .card{
+    height: calc(100dvh - 120px - 86px);
+    min-height: calc(100dvh - 120px - 86px);
+    margin-bottom: 86px;
+  }
+
+  @media (max-width: 520px){
+    body.inServicios .card{
+      height: calc(100dvh - 120px - 96px);
+      min-height: calc(100dvh - 120px - 96px);
+      margin-bottom: 96px;
+    }
+  }
+
   /* Comparecencia: make textarea grow to fill remaining space */
   #screenComparecencia{
     display: flex;
@@ -183,11 +198,12 @@ justify-content: center;
   .fields{ display:block; height: 100%; }
 
   #screenFiliacion,
- 
+
   #screenServicios{
     display:grid;
     gap:22px;
     grid-template-columns: 1fr;
+    padding-bottom: 20px;
   }
   #screenComparecencia .span2:has(#Doc){ flex:1 1 auto; display:flex; }
   #screenComparecencia .span2.row:has(#download){
@@ -441,9 +457,61 @@ background:rgba(10,16,26,.82);color:rgba(255,255,255,.92);font-weight:800;letter
 box-shadow:0 18px 55px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.16);
 backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s ease}
 #toastCenter.show{opacity:1}
+/* === Lock: hide the whole app UI until authenticated === */
+body.locked .card,
+body.locked .subbar{ display:none !important; }
+
+.lockScreen{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-height: calc(100dvh - 120px);
+}
+body.locked .lockScreen{ display:flex; }
+
+.lockPanel{
+  width: min(520px, 94vw);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  text-align:center;
+}
+.lockTitle{
+  font-weight: 850;
+  letter-spacing: .3px;
+  font-size: 16px;
+  color: var(--text);
+}
+.lockHint{
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+#lockErr{
+  margin-top: 10px;
+  color: rgba(255,159,10,.92);
+  font-weight: 700;
+  display:none;
+}
+
+/* Logout flotante (solo Servicios): fuera de contenedores scroll */
+#btnLogoutServicios{
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 3000;
+  display: none;
+  pointer-events: auto;
+}
+body.fbAuthed.inServicios #btnLogoutServicios{ display: inline-flex; }
 </style>
 </head>
 <body>
+<!-- Logout solo en Servicios (fuera de contenedores) -->
+<button id="btnLogoutServicios" class="btn secondary" title="Cerrar sesión">Logout</button>
 <div class="app">
   <header class="topbar fixed" aria-label="Limpiar">
     <h1 class="brandTitle" id="btnClearFromHeader" data-title="FILIATRON" title="Limpiar formulario">🐝</h1>
@@ -452,16 +520,25 @@ backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s
   <div class="subbar">
     <span class="subtitle" id="subtitleText">Filiaciones y Comparecencia GPT</span>
   </div>
+  <!-- Lock screen: app UI hidden until Firebase session exists -->
+<div id="lockScreen" class="lockScreen" aria-live="polite">
+  <div class="lockPanel">
+    <div class="lockTitle">Acceso requerido</div>
+    <div class="lockHint">Inicia sesión para acceder</div>
+
+    <div class="row center" id="authRow" style="margin:14px 0 0">
+      <span class="badge" id="fbAuthBadge" title="Firebase Auth">Sin sesión</span>
+      <button class="btn secondary" id="fbLoginBtn">Login</button>
+      <button class="btn secondary" id="fbLogoutBtn" style="display:none">Logout</button>
+    </div>
+
+    <div class="lockHint" id="lockErr"></div>
+  </div>
+</div>
 <div class="card">
 <div class="fields">
 <div id="screenFiliacion">
-  <div class="span2" style="display:flex;align-items:center;justify-content:flex-start;margin-top:2px">
-  <div class="row" id="authRow" style="margin:0">
-    <span class="badge" id="fbAuthBadge" title="Firebase Auth">Sin sesión</span>
-    <button class="btn secondary" id="fbLoginBtn">Login</button>
-    <button class="btn secondary" id="fbLogoutBtn" style="display:none">Logout</button>
-  </div>
-</div>
+  
 
 <!-- 2) CAMPOS FILIACIÓN -->
 <div><label>Condición</label>
@@ -476,7 +553,6 @@ backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s
   <option>Infractor</option>
 </select>
 </div>
-<div><label>Teléfono</label><input id="Telefono" inputmode="numeric" pattern="[0-9 ]*"></div>
 <div><label>Nombre</label><input id="Nombre"></div>
 <div><label>Apellidos</label><input id="Apellidos"></div>
 <div>
@@ -507,6 +583,8 @@ backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s
 </div>
 <div><label>Lugar de nacimiento</label><input id="Lugar"></div>
 <div class="span2"><label>Domicilio</label><input id="Domicilio"></div>
+<div><label>Teléfono</label><input id="Telefono" inputmode="numeric" pattern="[0-9 ]*"></div>
+
 <!-- 3) LISTA / CONTADOR / AGREGAR -->
 <div class="span2 row center" style="margin-top:8px">
   <button class="btn" id="addFiliacion">👤 Agregar</button>
@@ -544,6 +622,7 @@ backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s
   <div class="span2" style="margin-top:14px">
     <div id="svcGrid" class="svcGrid"></div>
   </div>
+
 </div>
 </div>
 </div>
@@ -584,9 +663,25 @@ function payload(){
     source: "Labejar"
   };
 }
-function ui(user){document.getElementById('fbAuthBadge').textContent=user?(user.email||"Sesión"):"Sin sesión";
-document.getElementById('fbLoginBtn').style.display=user?'none':'';
-document.getElementById('fbLogoutBtn').style.display=user?'':'none';}
+function ui(user){
+  const badge = document.getElementById('fbAuthBadge');
+  if (badge) badge.textContent = user ? (user.email || "Sesión") : "Sin sesión";
+
+  const bIn  = document.getElementById('fbLoginBtn');
+  const bOut = document.getElementById('fbLogoutBtn');
+  const svcOut = document.getElementById('btnLogoutServicios');
+
+  if (bIn)  bIn.style.display  = user ? 'none' : '';
+  if (bOut) bOut.style.display = user ? '' : 'none';
+
+  // clases de estado (controlan visibilidad del logout flotante)
+  const s3 = document.getElementById('screenServicios');
+  const inServicios = !!s3 && s3.style.display !== 'none';
+  document.body.classList.toggle('fbAuthed', !!user);
+  document.body.classList.toggle('inServicios', !!user && inServicios);
+
+  document.body.classList.toggle('locked', !user);
+}
 async function login(){ if(!FB.auth){toastCenter("Firebase no configurado"); return;}
 const email=(document.getElementById('fbEmail')?.value||"").trim(); const pass=(document.getElementById('fbPass')?.value||"").trim();
 if(!email||!pass){toastCenter("Falta email/pass"); return;}
@@ -642,14 +737,25 @@ async function sendToDenupol(){
 function openFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.add('open'); m.setAttribute('aria-hidden','false'); setTimeout(()=>document.getElementById('fbEmail')?.focus(),0);}
 function closeFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.remove('open'); m.setAttribute('aria-hidden','true');}
 window.addEventListener('DOMContentLoaded', ()=>{
-const ok=initFirebase();
-document.getElementById('fbLoginBtn')?.addEventListener('click', ()=> ok?openFbLoginModal():toastCenter("Firebase no configurado"));
-document.getElementById('fbLogoutBtn')?.addEventListener('click', logout);
-document.getElementById('fbLoginDo')?.addEventListener('click', login);
-document.getElementById('fbLoginCancel')?.addEventListener('click', closeFbLoginModal);
-document.getElementById('sendDenupolBtn')?.addEventListener('click', sendToDenupol);
-document.getElementById('fbLoginModal')?.addEventListener('click',(e)=>{ if(e.target?.id==='fbLoginModal') closeFbLoginModal();});
-ok ? FB.auth.onAuthStateChanged(ui) : ui(null);
+  // Start locked by default
+  document.body.classList.add('locked');
+
+  const ok = initFirebase();
+  const lockErr = document.getElementById('lockErr');
+  if (!ok && lockErr){
+    lockErr.style.display = '';
+    lockErr.textContent = 'Firebase no configurado.';
+  }
+
+  document.getElementById('fbLoginBtn')?.addEventListener('click', ()=> ok?openFbLoginModal():toastCenter("Firebase no configurado"));
+ document.getElementById('fbLogoutBtn')?.addEventListener('click', logout);
+document.getElementById('btnLogoutServicios')?.addEventListener('click', logout);
+  document.getElementById('fbLoginDo')?.addEventListener('click', login);
+  document.getElementById('fbLoginCancel')?.addEventListener('click', closeFbLoginModal);
+  document.getElementById('sendDenupolBtn')?.addEventListener('click', sendToDenupol);
+  document.getElementById('fbLoginModal')?.addEventListener('click',(e)=>{ if(e.target?.id==='fbLoginModal') closeFbLoginModal();});
+
+  ok ? FB.auth.onAuthStateChanged(ui) : ui(null);
 });
 </script>
 <script>
@@ -953,6 +1059,11 @@ function setScreen(n){
 
 
   try{ sessionStorage.setItem('LABEJAR_SCREEN', String(n)); }catch(_){}
+
+  // estado pantalla para logout flotante (CSS por clases)
+  const authed = !!(FB && FB.auth && FB.auth.currentUser);
+  document.body.classList.toggle('fbAuthed', authed);
+  document.body.classList.toggle('inServicios', authed && n === 3);
 }
 
 function nextScreen(){
