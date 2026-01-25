@@ -531,6 +531,8 @@ backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s
   <button class="btn" id="loadPlain">⬆️ Importar</button>
   <button class="btn" id="sendDenupolBtn">☁️ Enviar a GTD</button>
 </div>
+  <!-- input oculto requerido por importar.js -->
+  <input id="plainInput" type="file" accept=".json,.enc,application/json,text/plain" hidden>
 </div>
 
 <div id="screenServicios" style="display:none">
@@ -1117,40 +1119,73 @@ async function askPassphraseForSave(){
 
 if (btnDownload){
   btnDownload.addEventListener('click', async ()=>{
-    if (__screen === 1){
-      const f = getFormAsFiliacion();
-      const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
-      if (anyVal){
-        alert(
-          "Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
-          "Pulsa 'Agregar filiación' o limpia la ficha antes de descargar."
-        );
+  if (__screen === 1){
+    const f = getFormAsFiliacion();
+    const anyVal = Object.values(f).some(v => (v||"").trim()!=="");
+    if (anyVal){
+      alert(
+        "Tienes datos en la ficha de filiación que no has agregado al expediente.\n\n" +
+        "Pulsa 'Agregar filiación' o limpia la ficha antes de continuar."
+      );
+      return;
+    }
+  }
+
+  expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
+
+  const data = {
+    doc: expediente.doc,
+    filiaciones: expediente.filiaciones
+  };
+
+  try{
+    // === cifrado COMPAPOL ===
+    const b64 = await encryptJSON(data, FIXED_COMPAPOL_PASSWORD);
+
+    const d = new Date();
+    const pad = n => String(n).padStart(2,'0');
+
+    const fecha = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()).slice(-2)}`;
+    const hora  = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+    const titulo = `📥 Comparecencia Zeta · ${fecha} · ${hora}h`;
+    const filename =
+  `Compa ${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} ${pad(d.getHours())}h${pad(d.getMinutes())}.enc`;
+    const blob = new Blob([b64], { type: "application/octet-stream" });
+    const file = new File([blob], filename, {
+      type: "application/octet-stream"
+    });
+
+    // === compartir (iOS / móvil / WhatsApp / Mail) ===
+    if (navigator.share){
+      try{
+        await navigator.share({
+          title: titulo,
+          text: titulo,
+          files: [file]
+        });
+        toastCenter("Compartido");
         return;
+      }catch(_){
+        // en macOS suele fallar → seguimos a descarga
       }
     }
 
-    expediente.doc = document.getElementById('Doc').value || expediente.doc || "";
-    const data = { doc: expediente.doc, filiaciones: expediente.filiaciones };
+    // === fallback universal: descarga ===
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 800);
 
-    const pass = await askPassphraseForSave();
-    if (!pass) return;
+    toastCenter("Descargado");
 
-    try{
-      const b64 = await encryptJSON(data, pass);
-      const blob = new Blob([b64], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const d = new Date(); const pad = n => String(n).padStart(2,'0');
-      const fname = `Proyecto ${pad(d.getHours())}-${pad(d.getMinutes())} ${pad(d.getDate())}_${pad(d.getMonth()+1)}_${d.getFullYear()}.enc`;
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fname;
-      a.click();
-      URL.revokeObjectURL(url);
-    }catch(err){
-      console.error('Error descargando cifrado:', err);
-      alert('No se ha podido descargar el proyecto cifrado.');
-    }
-  });
+  }catch(err){
+    console.error("Error exportando:", err);
+    alert("No se pudo generar el archivo cifrado.");
+  }
+});
 }
 ["Nombre","Apellidos","Tipo","Numero","Sexo","Nacionalidad","Padres","Nacimiento","Lugar","Domicilio","Telefono","Condicion"].forEach(id => {
 const el = document.getElementById(id);
