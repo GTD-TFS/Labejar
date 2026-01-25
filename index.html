@@ -435,6 +435,12 @@ justify-content: center;
     .subbar .subtitle{ flex: 1 1 100%; }
     .btn{ padding: 10px 11px; }
   }
+  #toastCenter{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:100000;
+padding:12px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.18);
+background:rgba(10,16,26,.82);color:rgba(255,255,255,.92);font-weight:800;letter-spacing:.4px;
+box-shadow:0 18px 55px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.16);
+backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .12s ease}
+#toastCenter.show{opacity:1}
 </style>
 </head>
 <body>
@@ -451,22 +457,12 @@ justify-content: center;
 <div id="screenFiliacion">
   <div class="span2" style="display:flex;align-items:center;justify-content:flex-start;margin-top:2px">
   <div class="row" id="authRow" style="margin:0">
-    <span class="badge" id="authBadge" title="Credenciales para el backend">Sin acceso</span>
-    <button class="btn secondary" id="btnAuth" title="Configurar acceso">IA Off</button>
-    <button class="btn secondary" id="btnLogout" title="Borrar acceso" style="display:none">IA On</button>
+    <span class="badge" id="fbAuthBadge" title="Firebase Auth">Sin sesión</span>
+    <button class="btn secondary" id="fbLoginBtn">Login</button>
+    <button class="btn secondary" id="fbLogoutBtn" style="display:none">Logout</button>
   </div>
 </div>
-<!-- 1) BOTONES DNI: Foto + Archivo -->
-<div class="span2">
-<div class="row center" style="margin:6px 0 10px 0">
-<button class="btn" style="display:none" id="readAnalyze">ID 📷</button>
-<button class="btn secondary" id="readAnalyzeFile" title="Seleccionar documento">
-  <img src="docu.png" alt="Documento" class="iconPng">
-</button>
-<input type="file" id="dniCameraInput" accept="image/*" capture="environment" style="display:none">
-<input type="file" id="dniFileInput" accept="image/*" style="display:none">
-</div>
-</div>
+
 <!-- 2) CAMPOS FILIACIÓN -->
 <div><label>Condición</label>
 <select id="Condicion">
@@ -531,10 +527,10 @@ justify-content: center;
   </div>
 
   <div class="span2 row" style="justify-content:space-between">
-    <button class="btn" id="download">⬇️ Descargar</button>
-    <button class="btn" id="loadPlain">⬆️ Importar</button>
-    <input type="file" id="plainInput" accept=".json,.enc,.txt" style="display:none">
-  </div>
+  <button class="btn" id="download">📥 Descargar</button>
+  <button class="btn" id="loadPlain">⬆️ Importar</button>
+  <button class="btn" id="sendDenupolBtn">☁️ Enviar a GTD</button>
+</div>
 </div>
 
 <div id="screenServicios" style="display:none">
@@ -555,9 +551,105 @@ justify-content: center;
 <script src="municipios.js"></script>
 <script src="paises.js"></script>
 <script src="calles.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="mrz.js"></script>
 <script src="parser.js"></script>
 <script src="comparecencia.js"></script>
 <script src="servicios.js"></script>
+<script src="crypto_json.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDUG_T31JEWDK9x_apUZVHwriWnjurNrms",
+  authDomain: "denupol.firebaseapp.com",
+  projectId: "denupol",
+  appId: "1:691472437659:web:2cdd59082976841d7d513e"
+};
+const DENUPOL_COLLECTION="denupolInbox";
+let FB={app:null,auth:null,db:null},__t=null;
+function toastCenter(m){const el=document.getElementById('toastCenter'); if(!el)return; el.textContent=String(m||""); el.classList.add('show'); clearTimeout(__t); __t=setTimeout(()=>el.classList.remove('show'),1000);}
+function initFirebase(){ try{ if(!FIREBASE_CONFIG.apiKey||!FIREBASE_CONFIG.projectId) return false;
+FB.app=(firebase.apps&&firebase.apps.length)?firebase.app():firebase.initializeApp(FIREBASE_CONFIG);
+FB.auth=firebase.auth(); FB.db=firebase.firestore(); return true; }catch(e){console.warn(e); return false;}}
+function payload(){
+  const exp = (window.expediente && typeof window.expediente==='object') ? window.expediente : (typeof expediente!=='undefined' ? expediente : null);
+  return {
+    doc: (document.getElementById('Doc')?.value || "") + "",
+    filiaciones: (exp?.filiaciones || []),
+    updatedAt: new Date().toISOString(),
+    source: "Labejar"
+  };
+}
+function ui(user){document.getElementById('fbAuthBadge').textContent=user?(user.email||"Sesión"):"Sin sesión";
+document.getElementById('fbLoginBtn').style.display=user?'none':'';
+document.getElementById('fbLogoutBtn').style.display=user?'':'none';}
+async function login(){ if(!FB.auth){toastCenter("Firebase no configurado"); return;}
+const email=(document.getElementById('fbEmail')?.value||"").trim(); const pass=(document.getElementById('fbPass')?.value||"").trim();
+if(!email||!pass){toastCenter("Falta email/pass"); return;}
+try{ await FB.auth.signInWithEmailAndPassword(email,pass); closeFbLoginModal(); }catch(e){console.warn(e); toastCenter("Login inválido");}}
+async function logout(){ try{ await FB.auth.signOut(); }catch(_){ } }
+async function sendToDenupol(){
+  if(!FB.db){ toastCenter("Firebase no configurado"); return; }
+  const u = FB.auth.currentUser;
+  if(!u){ toastCenter("Sin sesión"); openFbLoginModal(); return; }
+
+  // Construir payload en claro (como hasta ahora)
+  const plain = payload();
+
+  // Pedir contraseña y cifrar en formato COMPAPOL
+  const pass = await askPassphraseForSave();
+  if (!pass){ toastCenter("Cancelado"); return; }
+
+  let b64;
+  try{
+    b64 = await encryptJSON(plain, pass); // base64( salt[16] + iv[12] + ciphertext )
+  }catch(e){
+    console.warn(e);
+    toastCenter("Error cifrando");
+    return;
+  }
+
+  // Wrapper COMPAPOL (sin metadatos extra dentro)
+  const compapol = {
+    alg: "AES-GCM",
+    kdf: "PBKDF2-SHA256",
+    it: 200000,
+    __compapol_enc_v1: String(b64 || "")
+  };
+
+  // Guardar en inbox: wrapper + tracking mínimo
+  const docOut = {
+    uid: u.uid,
+    email: u.email || "",
+    source: "Labejar",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: new Date().toISOString(),
+    ...compapol
+  };
+
+  try{
+    await FB.db.collection(DENUPOL_COLLECTION).add(docOut);
+    toastCenter("⚡️ Enviado a GTD");
+  }catch(e){
+    console.warn(e);
+    toastCenter("Error enviando");
+  }
+}
+function openFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.add('open'); m.setAttribute('aria-hidden','false'); setTimeout(()=>document.getElementById('fbEmail')?.focus(),0);}
+function closeFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.remove('open'); m.setAttribute('aria-hidden','true');}
+window.addEventListener('DOMContentLoaded', ()=>{
+const ok=initFirebase();
+document.getElementById('fbLoginBtn')?.addEventListener('click', ()=> ok?openFbLoginModal():toastCenter("Firebase no configurado"));
+document.getElementById('fbLogoutBtn')?.addEventListener('click', logout);
+document.getElementById('fbLoginDo')?.addEventListener('click', login);
+document.getElementById('fbLoginCancel')?.addEventListener('click', closeFbLoginModal);
+document.getElementById('sendDenupolBtn')?.addEventListener('click', sendToDenupol);
+document.getElementById('fbLoginModal')?.addEventListener('click',(e)=>{ if(e.target?.id==='fbLoginModal') closeFbLoginModal();});
+ok ? FB.auth.onAuthStateChanged(ui) : ui(null);
+});
+</script>
 <script>
 // UI / wiring (moved out of parser.js on purpose)
 function enforceCanonicalNacionalidad(){
@@ -805,27 +897,7 @@ function clearFormOnly(){
   updateCount();
   try{ localStorage.removeItem(FILI_LS_KEY); }catch(_){/* noop */}
 }
-function processOCR(ocr){
-if(!ocr.trim()){ alert("Portapapeles vacío. Copia el OCR primero."); return; }
-const parsed = parseDocument(ocr);
-fillFormFromParsed(parsed);
-}
-const btnFoto = document.getElementById('readAnalyze');
-const btnArchivo = document.getElementById('readAnalyzeFile');
-const inputFoto = document.getElementById('dniCameraInput');
-const inputArchivo = document.getElementById('dniFileInput');
-if (btnFoto && inputFoto){
-btnFoto.addEventListener('click', () => {
-inputFoto.value = "";
-inputFoto.click();
-});
-}
-if (btnArchivo && inputArchivo){
-btnArchivo.addEventListener('click', () => {
-inputArchivo.value = "";
-inputArchivo.click();
-});
-}
+
 
 document.getElementById('addFiliacion').addEventListener('click', ()=>{
 const f = getFormAsFiliacion();
@@ -994,6 +1066,7 @@ async function encryptJSON(obj, passphrase){
   return bufToB64(packed.buffer);
 }
 
+const FIXED_COMPAPOL_PASSWORD = "adejegtd";
 // === Password modal + optional OS password manager integration ===
 const PASS_CRED_ID = "compasc";
 let __lastPass = "";
@@ -1039,56 +1112,7 @@ function closePassModal(){
 }
 
 async function askPassphraseForSave(){
-  // Intentar recuperar del gestor de contraseñas del dispositivo (si existe)
-  if (!__lastPass){
-    const saved = await tryGetSavedPassword();
-    if (saved) __lastPass = saved;
-  }
-
-  return new Promise((resolve)=>{
-    const modal = document.getElementById('passModal');
-    const form  = document.getElementById('passForm');
-    const inp   = document.getElementById('passInput');
-    const chk   = document.getElementById('passRemember');
-    const cancel= document.getElementById('passCancel');
-
-    if (!modal || !form || !inp){
-      const p = prompt('Contraseña para guardar cifrado:');
-      resolve((p||'').trim());
-      return;
-    }
-
-    const onCancel = ()=>{
-      cleanup();
-      closePassModal();
-      resolve('');
-    };
-    const onSubmit = async (e)=>{
-      e.preventDefault();
-      const pass = (inp.value||'').trim();
-      if (!pass){ inp.focus(); return; }
-      __lastPass = pass;
-      cleanup();
-      closePassModal();
-      // Si el usuario quiere, intenta guardar en el gestor del dispositivo
-      if (chk && chk.checked){
-        await storePasswordWithOS(pass);
-      }
-      resolve(pass);
-    };
-    const onBackdrop = (e)=>{ if (e.target && e.target.id === 'passModal') onCancel(); };
-
-    function cleanup(){
-      cancel?.removeEventListener('click', onCancel);
-      form.removeEventListener('submit', onSubmit);
-      modal.removeEventListener('click', onBackdrop);
-    }
-
-    cancel?.addEventListener('click', onCancel);
-    form.addEventListener('submit', onSubmit);
-    modal.addEventListener('click', onBackdrop);
-    openPassModal();
-  });
+  return FIXED_COMPAPOL_PASSWORD;
 }
 
 if (btnDownload){
@@ -1334,30 +1358,48 @@ _flags: {}
 };
 }
 async function handleDniImageInputChange(e){
-const file = e.target.files && e.target.files[0];
-if (!file) return;
-if (!ensureAuthOrPrompt()) return;
-try {
-const dataUrl = await fileToDataUrl(file);
-const res = await fetch(OCR_API_URL, {
-method: "POST",
-headers: { "Content-Type": "application/json", ...authHeaders() },
-body: JSON.stringify({ imageBase64: dataUrl })
-});
-const text = await res.text();
-if (!res.ok) throw new Error(text);
-const json = JSON.parse(text);
-if (!json || json.ok !== true || !json.parsed) throw new Error("Respuesta inválida del backend");
-const mapped = mapBackendToFilFields(json.parsed || {});
-fillFormFromParsed(mapped);
-} catch (err) {
-console.error(err);
-try{
-const docEl = document.getElementById('Doc');
-if (docEl) docEl.value = "[OCR ERROR]" + String(err?.message || err);
-}catch(_){/* no-op */}
-alert("Error al procesar la imagen del DNI. Revisa consola.");
-}
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  // IA OFF: MRZ scanner offline (sin servidor)
+  if (!(AUTH && AUTH.group && AUTH.pass)){
+    // Abrir scanner UI y aplicar a tu flujo existente
+    if (!window.MRZScanner || typeof MRZScanner.open !== 'function'){
+      alert('MRZScanner no está disponible. Revisa que mrz.js se está cargando.');
+      return;
+    }
+    try{ e.target.value = ""; }catch(_){}
+    MRZScanner.open(file, {
+      onMRZText: (mrzText) => {
+        // Reutiliza tu pipeline actual (MRZ.parseMRZ si existe; si no, parseDocument)
+        processOCR(mrzText);
+      }
+    });
+    return;
+  }
+
+  // IA ON: OCR completo por backend
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    const res = await fetch(OCR_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ imageBase64: dataUrl })
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text);
+    const json = JSON.parse(text);
+    if (!json || json.ok !== true || !json.parsed) throw new Error("Respuesta inválida del backend");
+    const mapped = mapBackendToFilFields(json.parsed || {});
+    fillFormFromParsed(mapped);
+  } catch (err) {
+    console.error(err);
+    try{
+      const docEl = document.getElementById('Doc');
+      if (docEl) docEl.value = "[OCR ERROR]" + String(err?.message || err);
+    }catch(_){/* no-op */}
+    alert("Error al procesar la imagen del DNI. Revisa consola.");
+  }
 }
 document.getElementById('dniCameraInput')?.addEventListener('change', handleDniImageInputChange);
 document.getElementById('dniFileInput')?.addEventListener('change', handleDniImageInputChange);
@@ -1414,10 +1456,9 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   }
 });
 function ensureAuthOrPrompt(){
-if (AUTH.group && AUTH.pass) return true;
-openAuthModal();
-alert('Configura el acceso (grupo/contraseña) para usar el OCR.');
-return false;
+  // IA ON: backend OCR completo
+  // IA OFF: MRZScanner offline (no bloquear aquí)
+  return !!(AUTH.group && AUTH.pass);
 }
 </script>
 <!-- Modal de acceso -->
@@ -1440,33 +1481,26 @@ return false;
 </div>
 </div>
 </div>
-<!-- Modal contraseña guardado cifrado (para que el teléfono lo trate como password) -->
-<div class="modal" id="passModal" aria-hidden="true">
-  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="passTitle">
-    <h2 id="passTitle">Guardar cifrado</h2>
-    <form id="passForm" autocomplete="on">
-      <!-- "username" ayuda a los gestores de contraseñas; no se muestra realmente -->
-      <input type="text" name="username" value="compasc" autocomplete="username" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true">
-      <div style="margin-top:10px">
-        <label>Contraseña</label>
-        <input id="passInput" name="password" type="password" autocomplete="current-password" inputmode="text" placeholder="••••••••" />
+<div class="modal" id="fbLoginModal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="fbLoginTitle">
+    <h2 id="fbLoginTitle">Firebase · Login</h2>
+    <div class="fields2">
+      <div><label>Email</label><input id="fbEmail" type="email" autocomplete="username"></div>
+      <div><label>Contraseña</label><input id="fbPass" type="password" autocomplete="current-password"></div>
+      <div class="span2 row center" style="margin-top:10px">
+        <button class="btn" id="fbLoginDo">Entrar</button>
+        <button class="btn secondary" id="fbLoginCancel">Cancelar</button>
       </div>
-      <div style="margin-top:10px; display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
-          <input id="passRemember" type="checkbox" checked>
-          <span style="color:var(--muted);font-size:12px;">Recordar en este dispositivo</span>
-        </label>
-        <div class="row" style="margin:0;gap:10px">
-          <button class="btn" type="submit" id="passOk">Guardar</button>
-          <button class="btn secondary" type="button" id="passCancel">Cancelar</button>
-        </div>
+      <div class="span2 row center" style="margin-top:10px">
+      
       </div>
-    </form>
+    </div>
   </div>
 </div>
 <script src="importar.js"></script>
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/Labejar/sw.js');
 </script>
+<div id="toastCenter"></div>
 </body>
 </html>
