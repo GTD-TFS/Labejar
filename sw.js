@@ -1,4 +1,4 @@
-const CACHE = 'labejar-v5';
+const CACHE = 'labejar-v6';
 const ASSETS = [
   '/Labejar/',
   '/Labejar/index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   '/Labejar/abeja.png',
   '/Labejar/docu.png',
   '/Labejar/parser.js',
+  '/Labejar/crypto_json.js',
   '/Labejar/comparecencia.js',
   '/Labejar/servicios.js',
   '/Labejar/municipios.js',
