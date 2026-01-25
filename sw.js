@@ -1,4 +1,4 @@
-const CACHE = 'labejar-v7';
+const CACHE = 'labejar-v8';
 const ASSETS = [
   '/Labejar/',
   '/Labejar/index.html',
