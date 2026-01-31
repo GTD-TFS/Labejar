@@ -730,9 +730,15 @@ async function sendToDenupol(){
     await FB.db.collection(DENUPOL_COLLECTION).add(docOut);
     toastCenter("⚡️ Enviado a GTD");
   }catch(e){
-    console.warn(e);
-    toastCenter("Error enviando");
-  }
+  console.warn(e);
+  toastCenter("Error enviando: " + (e?.code || e?.message || e));
+  alert("SEND ERROR:\n" + JSON.stringify({
+    code: e?.code || null,
+    message: e?.message || String(e),
+    email: FB?.auth?.currentUser?.email || null,
+    uid: FB?.auth?.currentUser?.uid || null
+  }, null, 2));
+}
 }
 function openFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.add('open'); m.setAttribute('aria-hidden','false'); setTimeout(()=>document.getElementById('fbEmail')?.focus(),0);}
 function closeFbLoginModal(){const m=document.getElementById('fbLoginModal'); if(!m)return; m.classList.remove('open'); m.setAttribute('aria-hidden','true');}
