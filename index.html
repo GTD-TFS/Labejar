@@ -1380,7 +1380,7 @@ el.btnLimpiar.onclick = () => {
   el.filiacionesOut.innerHTML = "";
   setExportEnabled(false);
   setBusy(false);
-  closeFiliacionOverlay();
+  closeFiliacionOverlay(true);
   document.body.classList.remove('compare-on');
   if (el.btnToggleCompare){
     el.btnToggleCompare.textContent = '📝';

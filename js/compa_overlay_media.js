@@ -153,6 +153,44 @@ const ov = {
   title: document.getElementById('ovTitle'),
   form: document.getElementById('ovForm')
 };
+
+function _getCondicionFromState(fi){
+  const i = Number(fi);
+  if (!Number.isFinite(i)) return "";
+  const row = (state?.lastJson?.filiaciones && Array.isArray(state.lastJson.filiaciones)) ? state.lastJson.filiaciones[i] : null;
+  return row && typeof row === "object" ? String(row["Condición"] || "").trim() : "";
+}
+
+function _getCondicionFromOverlayUI(fi){
+  const i = Number(fi);
+  if (!Number.isFinite(i)) return "";
+  const inFull = ov.form?.querySelector?.(`select[data-ov-fi="${i}"][data-ov-k="Condición"],input[data-ov-fi="${i}"][data-ov-k="Condición"]`);
+  if (inFull && typeof inFull.value === "string") return String(inFull.value || "").trim();
+  const inThumb = document.getElementById(`thumb_cond_${i}`);
+  if (inThumb && typeof inThumb.value === "string") return String(inThumb.value || "").trim();
+  return "";
+}
+
+function _focusCondicionField(fi){
+  const i = Number(fi);
+  if (!Number.isFinite(i)) return;
+  const inFull = ov.form?.querySelector?.(`select[data-ov-fi="${i}"][data-ov-k="Condición"],input[data-ov-fi="${i}"][data-ov-k="Condición"]`);
+  const inThumb = document.getElementById(`thumb_cond_${i}`);
+  const target = inFull || inThumb;
+  try{ target?.focus?.(); }catch(_){}
+}
+
+function _canLeaveFiliacionOverlay(){
+  if (!ov.root?.classList?.contains('on')) return true;
+  const fi = Number(ov.root.dataset.filiFi);
+  if (!Number.isFinite(fi)) return true;
+  const cond = _getCondicionFromOverlayUI(fi) || _getCondicionFromState(fi);
+  if (cond) return true;
+  alert('Condición es obligatoria.');
+  _focusCondicionField(fi);
+  return false;
+}
+
 let _overlayKbTrackingOn = false;
 let _overlayBaseViewportHeight = 0;
 let _overlayFocusPatchBound = false;
@@ -423,7 +461,7 @@ function openFiliacionOverlay(i){
           <div class="${isGuided ? "ov-guided-field" : ""}">
             <label for="${escapeHtml(id)}">${escapeHtml(label)}</label>
             ${field.type === "select" ? `
-              <select id="${escapeHtml(id)}" data-ov-fi="${i}" data-ov-k="${escapeHtml(k)}">
+              <select id="${escapeHtml(id)}" data-ov-fi="${i}" data-ov-k="${escapeHtml(k)}" ${k === "Condición" ? "required" : ""}>
                 ${(field.options || []).map(opt => {
                   const isEmpty = String(opt || "") === "";
                   const placeholder = (k === "idComprobada" || k === "cacheo") ? "Seleccione una acción" : "Seleccione";
@@ -500,6 +538,8 @@ function openFiliacionOverlay(i){
     sel.value = String(cur || "");
   });
 
+  ov.root.dataset.filiFi = String(i);
+  ov.root.dataset.filiMode = 'full';
   lockBodyScroll();
   bindOverlayFocusPatch();
   setOverlayStaticLayoutVars();
@@ -509,7 +549,8 @@ function openFiliacionOverlay(i){
   updateOverlayKeyboardState();
 }
 
-function closeFiliacionOverlay(){
+function closeFiliacionOverlay(force){
+  if (force !== true && !_canLeaveFiliacionOverlay()) return;
   resetOverlayZoom();
   unlockBodyScroll();
   _bindOverlayKeyboardTracking(false);
@@ -525,6 +566,10 @@ function closeFiliacionOverlay(){
   ov.img.src = '';
   ov.img.style.display = 'block';
   ov.form.innerHTML = '';
+  if (ov.root?.dataset){
+    delete ov.root.dataset.filiFi;
+    delete ov.root.dataset.filiMode;
+  }
   if (state.lastJson){
     try{ renderFiliaciones(state.lastJson); }catch(_){}
   }
@@ -544,7 +589,7 @@ function openThumbOverlay(i){
   <div class="fili-grid" style="grid-template-columns:1fr;gap:10px">
     <div>
       <label for="thumb_cond_${i}">Condición</label>
-      <select id="thumb_cond_${i}">
+      <select id="thumb_cond_${i}" required>
         <option value=""></option>
         <option value="Perjudicado">Perjudicado</option>
         <option value="Testigo">Testigo</option>
@@ -611,6 +656,8 @@ function openThumbOverlay(i){
   telInp?.addEventListener('input', sync);
   condSel?.addEventListener('change', sync);
 
+  ov.root.dataset.filiFi = String(i);
+  ov.root.dataset.filiMode = 'thumb';
   lockBodyScroll();
   bindOverlayFocusPatch();
   setOverlayStaticLayoutVars();
@@ -621,10 +668,10 @@ function openThumbOverlay(i){
 }
 
 if (ov.close){
-  ov.close.addEventListener('click', closeFiliacionOverlay);
+  ov.close.addEventListener('click', () => closeFiliacionOverlay());
 }
 if (ov.closeTop){
-  ov.closeTop.addEventListener('click', closeFiliacionOverlay);
+  ov.closeTop.addEventListener('click', () => closeFiliacionOverlay());
 }
 if (ov.rotate){
   ov.rotate.addEventListener('click', () => {

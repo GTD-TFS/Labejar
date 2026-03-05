@@ -210,8 +210,8 @@ label,
 .fili-chip-title,
 #jobOverlay .title,
 #jobOverlay .timer{
-  color:#eef4ff !important;
-  text-shadow:none !important;
+  color:#d6b36a !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.35), 0 0 14px rgba(214,179,106,.16) !important;
 }
 
 .filebtn,

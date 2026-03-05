@@ -577,14 +577,14 @@ function fillCountriesDatalist() {
     if (dl.dataset.filled === "1") return;
     const opts = [
       "",
-      "PERJUDICADO",
-      "TESTIGO",
-      "VÍCTIMA",
-      "REQUIRENTE",
-      "DENUNCIADO",
-      "IDENTIFICADO",
-      "INFRACTOR",
-      "FINADO",
+      "Perjudicado",
+      "Testigo",
+      "Víctima",
+      "Requirente",
+      "Denunciado",
+      "Identificado",
+      "Infractor",
+      "Finado",
     ];
     dl.innerHTML = opts
       .filter((x) => x !== "")
@@ -595,27 +595,48 @@ function fillCountriesDatalist() {
 
   function ensureCondicionSelectOptions(sel) {
     if (!sel || sel.tagName !== "SELECT" || sel.dataset.compaCondicionOptions === "1") return;
+    const curRaw = String(sel.value || "");
     const have = new Set(
       [...sel.querySelectorAll("option")].map((o) => normUp(o.value || o.textContent))
     );
     const want = [
       "",
-      "PERJUDICADO",
-      "TESTIGO",
-      "VÍCTIMA",
-      "REQUIRENTE",
-      "DENUNCIADO",
-      "IDENTIFICADO",
-      "INFRACTOR",
-      "FINADO",
+      "Perjudicado",
+      "Testigo",
+      "Víctima",
+      "Requirente",
+      "Denunciado",
+      "Identificado",
+      "Infractor",
+      "Finado",
     ];
     const missing = want.filter((x) => !have.has(normUp(x)));
     if (missing.length) {
-      const cur = sel.value;
       sel.innerHTML = want
         .map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)
         .join("");
-      sel.value = cur;
+    }
+
+    // Mantener selección aunque cambie mayúsculas/minúsculas del catálogo.
+    const options = [...sel.querySelectorAll("option")];
+    const curNorm = normUp(curRaw);
+    if (curNorm) {
+      const exact = options.find((o) => String(o.value || "") === curRaw);
+      if (exact) {
+        sel.value = curRaw;
+      } else {
+        const byNorm = options.find((o) => normUp(o.value || o.textContent) === curNorm);
+        if (byNorm) {
+          sel.value = String(byNorm.value || byNorm.textContent || "");
+        } else {
+          // Si llega un valor legacy no contemplado, lo preservamos.
+          const o = document.createElement("option");
+          o.value = curRaw;
+          o.textContent = curRaw;
+          sel.appendChild(o);
+          sel.value = curRaw;
+        }
+      }
     }
     sel.dataset.compaCondicionOptions = "1";
   }
