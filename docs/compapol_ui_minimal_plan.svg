@@ -1,0 +1,73 @@
+<svg width="900" height="1600" viewBox="0 0 900 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#07111f"/>
+      <stop offset="100%" stop-color="#0a1630"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff22"/>
+      <stop offset="100%" stop-color="#ffffff0a"/>
+    </linearGradient>
+    <linearGradient id="glassStrong" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff3a"/>
+      <stop offset="100%" stop-color="#ffffff12"/>
+    </linearGradient>
+    <filter id="soft">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="1600" fill="url(#bg)"/>
+  <circle cx="760" cy="260" r="170" fill="#2ebcff12"/>
+  <circle cx="140" cy="1360" r="220" fill="#6f7cff0f"/>
+
+  <!-- top controls -->
+  <rect x="24" y="36" width="852" height="112" rx="34" fill="url(#glass)" stroke="#d8ecff30" filter="url(#soft)"/>
+  <circle cx="132" cy="92" r="40" fill="url(#glassStrong)" stroke="#ffffff42"/>
+  <text x="120" y="103" fill="#f4f9ff" font-size="36" font-family="Arial">◎</text>
+  <circle cx="450" cy="92" r="40" fill="url(#glassStrong)" stroke="#ffffff42"/>
+  <text x="436" y="103" fill="#f4f9ff" font-size="36" font-family="Arial">＋</text>
+  <circle cx="768" cy="92" r="40" fill="url(#glassStrong)" stroke="#ffffff42"/>
+  <text x="754" y="103" fill="#f4f9ff" font-size="34" font-family="Arial">≡</text>
+
+  <!-- brand, compact -->
+  <text x="450" y="244" text-anchor="middle" fill="#e9f2ff" font-size="72" font-family="Arial" font-weight="700" letter-spacing="1">COMPA·POL</text>
+  <text x="450" y="280" text-anchor="middle" fill="#95a9c5" font-size="24" font-family="Arial">Interfaz minimal · foco en rapidez</text>
+
+  <!-- active bundle chip -->
+  <rect x="172" y="320" width="556" height="66" rx="33" fill="url(#glass)" stroke="#d4e6ff36"/>
+  <text x="450" y="362" text-anchor="middle" fill="#d9e8ff" font-size="26" font-family="Arial">AMÉRICA 12 · 21 FEB · 14:40</text>
+
+  <!-- main empty/work area -->
+  <rect x="24" y="420" width="852" height="930" rx="38" fill="#ffffff06" stroke="#bedcff25"/>
+  <text x="68" y="490" fill="#dce9ff" font-size="30" font-family="Arial" font-weight="700">Filiaciones</text>
+
+  <rect x="58" y="532" width="784" height="108" rx="26" fill="url(#glass)" stroke="#cee2ff2f"/>
+  <circle cx="114" cy="586" r="22" fill="#ffffff24"/>
+  <text x="106" y="595" fill="#f2f7ff" font-size="24" font-family="Arial">＋</text>
+  <text x="152" y="596" fill="#dbe8ff" font-size="30" font-family="Arial">Añadir filiación</text>
+
+  <rect x="58" y="660" width="784" height="154" rx="26" fill="#ffffff08" stroke="#cee2ff22"/>
+  <text x="84" y="724" fill="#eaf2ff" font-size="34" font-family="Arial" font-weight="700">Filiación 1</text>
+  <text x="84" y="764" fill="#9fb2cf" font-size="24" font-family="Arial">Sin datos todavía</text>
+  <circle cx="748" cy="736" r="36" fill="url(#glassStrong)" stroke="#ffffff42"/>
+  <text x="735" y="748" fill="#eef5ff" font-size="30" font-family="Arial">↗</text>
+
+  <text x="68" y="902" fill="#95a9c5" font-size="24" font-family="Arial">Tip: pulsación larga en imagen para guardar</text>
+
+  <!-- floating send button -->
+  <rect x="286" y="1160" width="328" height="86" rx="43" fill="url(#glassStrong)" stroke="#ecf4ff5c" filter="url(#soft)"/>
+  <text x="450" y="1216" text-anchor="middle" fill="#f5f9ff" font-size="42" font-family="Arial" font-weight="700">Send</text>
+
+  <!-- bottom dock -->
+  <rect x="24" y="1392" width="852" height="184" rx="46" fill="url(#glass)" stroke="#d3e7ff36" filter="url(#soft)"/>
+
+  <circle cx="158" cy="1484" r="66" fill="url(#glassStrong)" stroke="#ffffff44"/>
+  <text x="139" y="1506" fill="#f2f8ff" font-size="58" font-family="Arial">↓</text>
+
+  <rect x="335" y="1430" width="230" height="108" rx="54" fill="url(#glassStrong)" stroke="#ffffff4e"/>
+  <text x="450" y="1499" text-anchor="middle" fill="#f4f9ff" font-size="52" font-family="Arial">☁</text>
+
+  <circle cx="742" cy="1484" r="66" fill="url(#glassStrong)" stroke="#ffffff44"/>
+  <text x="721" y="1506" fill="#f2f8ff" font-size="56" font-family="Arial">⟳</text>
+</svg>

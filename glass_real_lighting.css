@@ -272,3 +272,33 @@ label,
   padding-left:18px !important;
   color:#d4af37b8 !important;
 }
+
+/* Theme-aware fixes (override heavy glass layer) */
+html[data-theme="dark"] #bg{
+  background:
+    url('icon-512.png') center 44% / min(50vw, 380px) auto no-repeat,
+    radial-gradient(980px 560px at 4% -14%, rgba(255,255,255,.22), transparent 62%),
+    radial-gradient(1100px 640px at 96% -6%, rgba(255,255,255,.14), transparent 66%),
+    radial-gradient(900px 650px at 50% 112%, rgba(12,24,42,.40), transparent 75%),
+    linear-gradient(160deg, #061a2b, #04101d 52%, #071a2a) !important;
+}
+
+html[data-theme="light"] #bg{
+  background:
+    url('icon-512.png') center 44% / min(50vw, 380px) auto no-repeat,
+    radial-gradient(980px 560px at 4% -14%, rgba(255,255,255,.30), transparent 62%),
+    radial-gradient(1100px 640px at 96% -6%, rgba(255,255,255,.22), transparent 66%),
+    radial-gradient(900px 650px at 50% 112%, rgba(229,235,243,.40), transparent 75%),
+    linear-gradient(160deg, #f8fbff, #eef4fb 52%, #e5eef9) !important;
+}
+
+html[data-theme="dark"] #bg::before{ opacity:.18 !important; }
+html[data-theme="light"] #bg::before{ opacity:.12 !important; }
+html[data-theme="dark"] #bg::after{ opacity:.10 !important; filter:blur(8px) !important; }
+html[data-theme="light"] #bg::after{ opacity:.06 !important; filter:blur(6px) !important; }
+
+html[data-theme="dark"] .hero h1,
+html[data-theme="light"] .hero h1{
+  color:#d6b36a !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.35), 0 0 14px rgba(214,179,106,.16) !important;
+}

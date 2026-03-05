@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>COMPA·POL Glass Lab</title>
+  <style>
+    :root{
+      --bg0:#060913;
+      --bg1:#0a1020;
+      --ink:#f4f8ff;
+      --muted:#9bb0c9;
+      --glassFill: rgba(255,255,255,.08);
+      --glassStroke: rgba(208,231,255,.34);
+      --specA: rgba(255,255,255,.68);
+      --specB: rgba(255,255,255,.18);
+      --shadowA: 0 18px 34px rgba(0,0,0,.45);
+      --shadowB: 0 5px 12px rgba(0,0,0,.35);
+      --caBlue: rgba(71,219,255,.46);
+      --caMag: rgba(188,98,255,.45);
+      --caGreen: rgba(116,255,174,.32);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(120vmax 80vmax at 85% 22%, rgba(39,169,255,.20), transparent 55%),
+        radial-gradient(90vmax 70vmax at 20% 85%, rgba(117,88,255,.20), transparent 60%),
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .noise::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.06;
+      background-image:
+        repeating-radial-gradient(circle at 0 0, transparent 0 2px, rgba(255,255,255,.8) 2px 2.5px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 1px, transparent 1px 2px);
+      mix-blend-mode:soft-light;
+    }
+
+    .app{
+      max-width:980px;
+      margin:0 auto;
+      min-height:100dvh;
+      padding:env(safe-area-inset-top) 22px calc(24px + env(safe-area-inset-bottom));
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+      gap:18px;
+    }
+
+    .glass{
+      position:relative;
+      border:1px solid var(--glassStroke);
+      background:var(--glassFill);
+      backdrop-filter: blur(18px) saturate(135%);
+      -webkit-backdrop-filter: blur(18px) saturate(135%);
+      box-shadow: var(--shadowA), var(--shadowB), inset 0 1px 0 rgba(255,255,255,.22);
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .glass::before{
+      content:"";
+      position:absolute;
+      left:7px;
+      right:7px;
+      top:7px;
+      height:34%;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--specA),var(--specB), transparent);
+      filter:blur(.2px);
+      pointer-events:none;
+      opacity:.85;
+    }
+
+    .glass::after{
+      content:"";
+      position:absolute;
+      inset:-35%;
+      pointer-events:none;
+      background:
+        radial-gradient(60% 35% at 20% 70%, var(--caBlue), transparent 75%),
+        radial-gradient(65% 40% at 85% 78%, var(--caMag), transparent 75%),
+        radial-gradient(40% 35% at 52% 95%, var(--caGreen), transparent 78%);
+      filter:blur(16px);
+      mix-blend-mode:screen;
+      opacity:.56;
+      z-index:-1;
+    }
+
+    .topbar{
+      border-radius:34px;
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .cluster{display:flex;gap:14px;align-items:center}
+
+    .gbtn{
+      width:72px;
+      height:72px;
+      border-radius:999px;
+      border:1px solid rgba(224,245,255,.6);
+      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+      color:#f6fbff;
+      display:grid;
+      place-items:center;
+      font-size:34px;
+      box-shadow: 0 12px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -10px 16px rgba(80,150,255,.15);
+      text-shadow:0 1px 1px rgba(0,0,0,.35);
+    }
+
+    .title{
+      text-align:center;
+      font-weight:800;
+      letter-spacing:1px;
+      font-size: clamp(40px, 7vw, 72px);
+      margin:10px 0 0;
+      text-shadow:0 10px 24px rgba(0,0,0,.45);
+    }
+
+    .panel{
+      border-radius:34px;
+      padding:18px;
+      min-height:320px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .chip{
+      border-radius:24px;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .thumb{
+      width:86px;
+      height:66px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,.05));
+      border:1px solid rgba(230,245,255,.55);
+      flex:none;
+    }
+
+    .meta{flex:1;min-width:0}
+    .meta b{display:block;font-size:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .meta small{display:block;font-size:16px;color:var(--muted);margin-top:2px}
+
+    .cta{
+      min-width:94px;
+      height:52px;
+      border-radius:26px;
+      border:1px solid rgba(233,247,255,.65);
+      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+      color:#f5fbff;
+      font-size:24px;
+      box-shadow:0 10px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    .dock{
+      border-radius:44px;
+      padding:18px 22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .pill{
+      width:min(330px,42vw);
+      height:108px;
+      border-radius:54px;
+      border:1px solid rgba(234,247,255,.72);
+      background:
+        radial-gradient(130% 110% at 15% 100%, rgba(73,214,255,.35), transparent 50%),
+        radial-gradient(110% 90% at 85% 100%, rgba(181,124,255,.35), transparent 52%),
+        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.07));
+      display:grid;
+      place-items:center;
+      font-size:50px;
+      color:#f8fcff;
+      box-shadow: 0 18px 30px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.62);
+      text-shadow:0 2px 5px rgba(0,0,0,.35);
+    }
+
+    .hint{
+      color:#96abc3;
+      font-size:15px;
+      text-align:center;
+      margin-top:8px;
+    }
+
+    @media (max-width: 640px){
+      .gbtn{width:62px;height:62px;font-size:30px}
+      .pill{height:92px;border-radius:46px;font-size:42px}
+      .meta b{font-size:20px}
+      .title{font-size:52px}
+    }
+  </style>
+</head>
+<body class="noise">
+  <main class="app">
+    <section class="glass topbar">
+      <div class="cluster">
+        <button class="gbtn" aria-label="Capturar">◎</button>
+      </div>
+      <div class="cluster">
+        <button class="gbtn" aria-label="Añadir">＋</button>
+      </div>
+      <div class="cluster">
+        <button class="gbtn" aria-label="Menú">≡</button>
+      </div>
+    </section>
+
+    <h1 class="title">COMPA·POL</h1>
+
+    <section class="glass panel" aria-label="Filiaciones">
+      <article class="glass chip">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="meta">
+          <b>Filiación 1</b>
+          <small>Javier Bejar · Pasaporte · Legal</small>
+        </div>
+        <button class="cta" aria-label="Abrir">↗</button>
+      </article>
+      <article class="glass chip">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="meta">
+          <b>Añadir filiación</b>
+          <small>Toque rápido sin abrir modal completo</small>
+        </div>
+        <button class="cta" aria-label="Añadir">＋</button>
+      </article>
+    </section>
+
+    <section class="glass dock" aria-label="Acciones inferiores">
+      <button class="gbtn" aria-label="Exportar">↓</button>
+      <button class="pill" aria-label="Enviar inbox">☁</button>
+      <button class="gbtn" aria-label="Reiniciar">⟳</button>
+    </section>
+
+    <p class="hint">Archivo aislado de pruebas visuales. No toca la lógica de tu app.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<svg width="1170" height="2532" viewBox="0 0 1170 2532" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#03060d"/>
+      <stop offset="35%" stop-color="#070f1d"/>
+      <stop offset="100%" stop-color="#09071b"/>
+    </linearGradient>
+    <radialGradient id="orbA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(920 620) rotate(130) scale(620)">
+      <stop offset="0" stop-color="#57d9ff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#57d9ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orbB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(160 1760) rotate(45) scale(700)">
+      <stop offset="0" stop-color="#6f61ff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#6f61ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glassFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff2a"/>
+      <stop offset="1" stop-color="#ffffff08"/>
+    </linearGradient>
+    <linearGradient id="glassTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff40"/>
+      <stop offset="1" stop-color="#ffffff00"/>
+    </linearGradient>
+    <linearGradient id="buttonCore" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9f2ff35"/>
+      <stop offset="1" stop-color="#9ec2e512"/>
+    </linearGradient>
+    <linearGradient id="accentPill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#49d6ff"/>
+      <stop offset="1" stop-color="#b67cff"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+    <filter id="innerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="arithmetic" k2="1" k3="-1" result="inner"/>
+      <feColorMatrix in="inner" type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.95 0 0 0 0 1 0 0 0 0.6 0"/>
+    </filter>
+  </defs>
+
+  <rect width="1170" height="2532" fill="url(#bg)"/>
+  <rect width="1170" height="2532" fill="url(#orbA)"/>
+  <rect width="1170" height="2532" fill="url(#orbB)"/>
+
+  <!-- top bar -->
+  <g filter="url(#shadow)">
+    <rect x="32" y="82" width="1106" height="154" rx="52" fill="url(#glassFill)" stroke="#d9efff4d"/>
+    <rect x="44" y="94" width="1082" height="58" rx="29" fill="url(#glassTop)"/>
+  </g>
+
+  <!-- top circular actions -->
+  <g>
+    <g filter="url(#shadow)">
+      <circle cx="168" cy="159" r="56" fill="url(#buttonCore)" stroke="#ecf7ff80"/>
+      <circle cx="168" cy="145" r="28" fill="#ffffff12"/>
+    </g>
+    <text x="168" y="173" text-anchor="middle" fill="#f4fbff" font-size="50" font-family="SF Pro Display, Arial">◎</text>
+
+    <g filter="url(#shadow)">
+      <circle cx="585" cy="159" r="56" fill="url(#buttonCore)" stroke="#ecf7ff80"/>
+      <circle cx="585" cy="145" r="28" fill="#ffffff12"/>
+    </g>
+    <text x="585" y="173" text-anchor="middle" fill="#f4fbff" font-size="52" font-family="SF Pro Display, Arial">＋</text>
+
+    <g filter="url(#shadow)">
+      <circle cx="1002" cy="159" r="56" fill="url(#buttonCore)" stroke="#ecf7ff80"/>
+      <circle cx="1002" cy="145" r="28" fill="#ffffff12"/>
+    </g>
+    <text x="1002" y="173" text-anchor="middle" fill="#f4fbff" font-size="46" font-family="SF Pro Display, Arial">≡</text>
+  </g>
+
+  <!-- logo minimal -->
+  <text x="585" y="360" text-anchor="middle" fill="#f7fbff" font-family="SF Pro Display, Arial" font-size="112" font-weight="700" letter-spacing="2">COMPA·POL</text>
+  <text x="585" y="412" text-anchor="middle" fill="#99b2ca" font-family="SF Pro Text, Arial" font-size="34">Diseño minimal · cristal fluido · foco operativo</text>
+
+  <!-- quick status chip -->
+  <g filter="url(#shadow)">
+    <rect x="183" y="472" width="804" height="92" rx="46" fill="url(#glassFill)" stroke="#dbecff52"/>
+    <rect x="190" y="480" width="790" height="34" rx="17" fill="#ffffff2a"/>
+  </g>
+  <text x="585" y="530" text-anchor="middle" fill="#e7f2ff" font-family="SF Pro Text, Arial" font-size="34">AMÉRICA 12 · 21 FEB 2026 · 14:40</text>
+
+  <!-- content frame -->
+  <g filter="url(#shadow)">
+    <rect x="32" y="620" width="1106" height="1590" rx="58" fill="#ffffff08" stroke="#c8defc2f"/>
+    <rect x="44" y="632" width="1082" height="58" rx="29" fill="#ffffff18"/>
+  </g>
+
+  <!-- chips list -->
+  <text x="82" y="760" fill="#b8cae0" font-family="SF Pro Text, Arial" font-size="34" letter-spacing="1">FILIACIONES</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="794" width="1026" height="160" rx="38" fill="url(#glassFill)" stroke="#d8e9ff40"/>
+    <rect x="72" y="794" width="350" height="160" rx="38" fill="#ffffff0f"/>
+    <rect x="86" y="808" width="322" height="132" rx="26" fill="#d2e7ff1d" stroke="#f0f7ff55"/>
+  </g>
+  <text x="452" y="858" fill="#eef6ff" font-family="SF Pro Display, Arial" font-size="46" font-weight="700">JAVIER BEJAR</text>
+  <text x="452" y="905" fill="#9fb7d0" font-family="SF Pro Text, Arial" font-size="30">Pasaporte · Identidad Sí · Legal</text>
+  <g>
+    <rect x="930" y="830" width="132" height="86" rx="43" fill="url(#buttonCore)" stroke="#e8f5ff66"/>
+    <text x="996" y="886" text-anchor="middle" fill="#f7fbff" font-size="44">↗</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="976" width="1026" height="120" rx="34" fill="#ffffff0a" stroke="#d8e8ff33"/>
+  </g>
+  <text x="108" y="1052" fill="#dce9f7" font-size="38" font-family="SF Pro Text, Arial">＋ Añadir filiación</text>
+
+  <!-- central action minimal -->
+  <g filter="url(#shadow)">
+    <rect x="360" y="1880" width="450" height="116" rx="58" fill="url(#buttonCore)" stroke="#f0f7ff82"/>
+    <rect x="370" y="1890" width="430" height="40" rx="20" fill="#ffffff24"/>
+  </g>
+  <text x="585" y="1956" text-anchor="middle" fill="#f7fbff" font-family="SF Pro Display, Arial" font-size="56" font-weight="700">Send</text>
+
+  <!-- bottom dock -->
+  <g filter="url(#shadow)">
+    <rect x="32" y="2236" width="1106" height="252" rx="72" fill="url(#glassFill)" stroke="#d8ecff4d"/>
+    <rect x="46" y="2252" width="1078" height="76" rx="38" fill="url(#glassTop)"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="214" cy="2362" r="88" fill="url(#buttonCore)" stroke="#ebf7ff8a"/>
+  </g>
+  <text x="214" y="2392" text-anchor="middle" fill="#f5fbff" font-size="78">↓</text>
+
+  <g filter="url(#shadow)">
+    <rect x="452" y="2270" width="266" height="184" rx="92" fill="url(#accentPill)"/>
+    <rect x="462" y="2282" width="246" height="56" rx="28" fill="#ffffff42"/>
+  </g>
+  <text x="585" y="2388" text-anchor="middle" fill="#042339" font-size="86" font-weight="700">☁</text>
+
+  <g filter="url(#shadow)">
+    <circle cx="956" cy="2362" r="88" fill="url(#buttonCore)" stroke="#ebf7ff8a"/>
+  </g>
+  <text x="956" y="2392" text-anchor="middle" fill="#f5fbff" font-size="78">⟳</text>
+
+  <!-- subtle grain imitation -->
+  <rect width="1170" height="2532" fill="#ffffff" opacity="0.02"/>
+</svg>

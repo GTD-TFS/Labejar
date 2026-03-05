@@ -38,11 +38,23 @@
       }catch{}
     })();
   </script>
+  <script>
+    (function(){
+      try{
+        const key = 'COMPAPOL_THEME_V1';
+        const raw = localStorage.getItem(key);
+        const theme = (raw === 'light' || raw === 'dark') ? raw : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      }catch(_){
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="compa.css?v=21">
-  <link rel="stylesheet" href="glass_real_lighting.css?v=1">
+  <link rel="stylesheet" href="compa.css?v=22">
+  <link rel="stylesheet" href="glass_real_lighting.css?v=2">
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -108,6 +120,7 @@
 <div id="app">
   <header class="hero" aria-label="Cabecera institucional">
     <h1>COMPA·POL</h1>
+    <div id="themeHoldZone" aria-hidden="true"></div>
   </header>
   <p id="status" class="muted" aria-live="polite"></p>
 
@@ -143,11 +156,21 @@
     </div>
   </div>
 </div>
+<div class="card" id="servicesCard" style="display:none; margin-top:14px">
+  <div id="servicesWrap">
+    <label>Servicios</label>
+    <div class="svcActions">
+      <button id="svcAdd" type="button">+ Añadir</button>
+      <button id="svcClear" type="button">Borrado global</button>
+    </div>
+    <div id="svcGrid" class="svcGrid"></div>
+  </div>
+</div>
     </div>
   <div class="card" id="bottomDock">
     <div class="emoji-row">
       <button id="btnDescargar" type="button">↓</button>
-      <button id="btnCloud" type="button">☁️</button>
+      <button id="btnCloud" type="button">🛠️</button>
       <button id="btnLimpiar" type="button">⟳</button>
     </div>
   </div>
@@ -327,6 +350,75 @@ function updateMainContentVisibility(){
   document.body.classList.toggle('has-content', has);
 }
 
+function setServicesMode(on){
+  const enabled = !!on;
+  document.body.classList.toggle('services-on', enabled);
+  if (el.btnCloud) el.btnCloud.textContent = enabled ? '🏠' : '🛠️';
+}
+
+const THEME_KEY = 'COMPAPOL_THEME_V1';
+const THEME_DARK = 'dark';
+const THEME_LIGHT = 'light';
+
+function getCurrentTheme(){
+  const t = document.documentElement.getAttribute('data-theme');
+  return (t === THEME_LIGHT || t === THEME_DARK) ? t : THEME_DARK;
+}
+
+function applyTheme(theme){
+  const next = (theme === THEME_LIGHT) ? THEME_LIGHT : THEME_DARK;
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem(THEME_KEY, next); }catch(_){}
+}
+
+function toggleTheme(){
+  const now = getCurrentTheme();
+  applyTheme(now === THEME_DARK ? THEME_LIGHT : THEME_DARK);
+}
+
+function initHiddenThemeToggle(){
+  const zone = document.getElementById('themeHoldZone');
+  if (!zone) return;
+  const HOLD_MS = 2500;
+  let timer = null;
+  let startX = 0;
+  let startY = 0;
+  let armed = false;
+
+  const clear = () => {
+    if (timer){
+      clearTimeout(timer);
+      timer = null;
+    }
+    armed = false;
+  };
+
+  const begin = (x, y) => {
+    clear();
+    startX = Number(x || 0);
+    startY = Number(y || 0);
+    armed = true;
+    timer = setTimeout(() => {
+      if (!armed) return;
+      armed = false;
+      toggleTheme();
+    }, HOLD_MS);
+  };
+
+  const move = (x, y) => {
+    if (!armed) return;
+    const dx = Math.abs(Number(x || 0) - startX);
+    const dy = Math.abs(Number(y || 0) - startY);
+    if (dx > 12 || dy > 12) clear();
+  };
+
+  zone.addEventListener('pointerdown', (ev) => begin(ev.clientX, ev.clientY));
+  zone.addEventListener('pointermove', (ev) => move(ev.clientX, ev.clientY));
+  zone.addEventListener('pointerup', clear);
+  zone.addEventListener('pointercancel', clear);
+  zone.addEventListener('pointerleave', clear);
+}
+
 const el = {
   f: document.getElementById('f'),
   thumbs: document.getElementById('thumbs'),
@@ -340,6 +432,7 @@ const el = {
   btnToggleCompare: document.getElementById('btnToggleCompare'),
   status: document.getElementById('status'),
   docOut: document.getElementById('docOut'),
+  servicesCard: document.getElementById('servicesCard'),
   filiWrap: document.getElementById('filiWrap'),
   filiacionesOut: document.getElementById('filiacionesOut'),
   filiCountBadge: document.getElementById('filiCountBadge'),
@@ -1244,49 +1337,9 @@ const wrappedText = await window.CompaCifrado.wrapEncryptedJSON(state.lastJson);
   setStatus('JSON ENCRIPTADO descargado.', 'ok');
 };
 
-if (el.btnCloud) el.btnCloud.onclick = async () => {
-  if (!hasInboxPayload()){
-    alert('No hay datos para enviar (filiaciones o comparecencia).');
-    return;
-  }
-  try{
-    setStatus('Autenticando en COMPAPOL…');
-    const user = await ensureDenupolAuth();
-    if (!user) throw new Error('No se pudo validar la sesión.');
-
-    if (!window.CompaCifrado?.wrapEncryptedJSON) {
-      throw new Error('Falta módulo de cifrado (CompaCifrado).');
-    }
-
-    const payload = getInboxPayload();
-    const inboxLabel = buildInboxLabel(payload);
-    const tokenPublico = (typeof payload.token === "string" && payload.token.trim()) ? payload.token.trim() : null;
-    setStatus('Cifrando JSON…');
-    const wrappedText = await window.CompaCifrado.wrapEncryptedJSON(payload);
-    let wrappedObj = null;
-    try{
-      wrappedObj = JSON.parse(wrappedText);
-    }catch(_){
-      throw new Error('No se pudo preparar el JSON cifrado.');
-    }
-
-    setStatus('Enviando a Inbox…');
-    await denupolDb.collection('denupolInbox').add({
-      ...wrappedObj,
-      label: inboxLabel,
-      tokenPublico,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      source: 'compa_api_github_release',
-      sourceUserUid: user.uid || null
-    });
-
-    setStatus('JSON enviado a Inbox.', 'ok');
-    alert('JSON enviado a Inbox.');
-  }catch(e){
-    const msg = String(e?.message || e || 'Error desconocido');
-    setStatus(`Error Inbox: ${msg}`, 'err');
-    alert(`Error Inbox: ${msg}`);
-  }
+if (el.btnCloud) el.btnCloud.onclick = () => {
+  const on = !document.body.classList.contains('services-on');
+  setServicesMode(on);
 };
 
 if (el.btnCompartir) el.btnCompartir.onclick = async () => {
@@ -1343,6 +1396,8 @@ el.btnLimpiar.onclick = () => {
 };
 
 bootstrapAuthGate();
+setServicesMode(false);
+initHiddenThemeToggle();
 
 </script>
 <script src="paises.js"></script>
@@ -1354,6 +1409,7 @@ bootstrapAuthGate();
 <script src="js/compa_overlay_media.js?v=11"></script>
 <script src="js/ios_clipboard_parser.js?v=15"></script>
 <script src="js/prewarm_agent.js?v=1"></script>
-<script src="js/denupol_modal_bundle.js?v=11"></script>
+<script src="js/denupol_modal_bundle.js?v=12"></script>
+<script src="js/servicios.js?v=1"></script>
 </body>
 </html>

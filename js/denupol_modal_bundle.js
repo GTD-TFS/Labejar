@@ -558,7 +558,6 @@
 
   function init(){
     hookButton("btnDescargar", "download");
-    hookButton("btnCloud", "inbox");
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

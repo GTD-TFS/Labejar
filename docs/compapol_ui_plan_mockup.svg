@@ -1,0 +1,82 @@
+<svg width="900" height="1600" viewBox="0 0 900 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#03152a"/>
+      <stop offset="100%" stop-color="#041033"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8fb8c91f"/>
+      <stop offset="100%" stop-color="#ffffff0c"/>
+    </linearGradient>
+    <linearGradient id="cta" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2ad6ff"/>
+      <stop offset="100%" stop-color="#57e5bf"/>
+    </linearGradient>
+    <filter id="blurShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="1600" fill="url(#bg)"/>
+  <circle cx="780" cy="280" r="240" fill="#00e1ff20"/>
+  <circle cx="140" cy="1270" r="280" fill="#2b65ff1f"/>
+
+  <rect x="26" y="24" width="848" height="90" rx="30" fill="#c7edf814" stroke="#b4deec55"/>
+  <text x="66" y="80" fill="#dff5ff" font-family="SF Pro Display, Arial" font-size="44" font-weight="700">COMPA·POL</text>
+  <circle cx="776" cy="69" r="28" fill="#7bc8df33" stroke="#c6f2ff66"/>
+  <text x="764" y="79" fill="#e8fbff" font-family="SF Pro Display, Arial" font-size="26">☰</text>
+
+  <rect x="26" y="136" width="848" height="110" rx="32" fill="url(#glass)" stroke="#d5f3ff40"/>
+  <circle cx="92" cy="191" r="34" fill="#69d7f93b"/>
+  <text x="82" y="200" fill="#edfdff" font-family="Arial" font-size="22">◎</text>
+  <text x="145" y="188" fill="#c7e8f7" font-family="SF Pro Text, Arial" font-size="25" font-weight="600">BUNDLE ACTIVO</text>
+  <text x="145" y="220" fill="#7cb2ca" font-family="SF Pro Text, Arial" font-size="22">AMÉRICA 12 · 21 FEB · 14:40</text>
+  <rect x="640" y="160" width="208" height="58" rx="24" fill="#0e2f45" stroke="#66d5ff66"/>
+  <text x="676" y="197" fill="#8ee8ff" font-family="SF Pro Text, Arial" font-size="26" font-weight="700">ENVIAR ☁</text>
+
+  <text x="40" y="296" fill="#8ab9d3" font-family="SF Pro Text, Arial" font-size="22" letter-spacing="1">FILIACIONES (3)</text>
+
+  <rect x="26" y="318" width="848" height="170" rx="28" fill="#d7efff1a" stroke="#8edfff55" filter="url(#blurShadow)"/>
+  <rect x="46" y="338" width="180" height="130" rx="18" fill="#9cc9dc55"/>
+  <text x="246" y="376" fill="#e7f8ff" font-family="SF Pro Text, Arial" font-size="34" font-weight="700">JAVIER BEJAR</text>
+  <text x="246" y="410" fill="#8bc0db" font-family="SF Pro Text, Arial" font-size="24">Pasaporte · Legal · Cacheo superficial</text>
+  <rect x="246" y="426" width="150" height="40" rx="16" fill="#2bda9a2f" stroke="#64ffc466"/>
+  <text x="275" y="453" fill="#9efed1" font-family="SF Pro Text, Arial" font-size="22">Editando</text>
+  <rect x="708" y="354" width="64" height="64" rx="20" fill="#7ad6f133"/><text x="727" y="395" fill="#ecfcff" font-size="34">✎</text>
+  <rect x="784" y="354" width="64" height="64" rx="20" fill="#f66d8d2f"/><text x="806" y="395" fill="#ffd6e0" font-size="34">✕</text>
+
+  <rect x="26" y="502" width="848" height="110" rx="26" fill="#bfdcf214" stroke="#87d7ff44"/>
+  <text x="48" y="548" fill="#d9f3ff" font-family="SF Pro Text, Arial" font-size="30" font-weight="600">+ Añadir filiación rápida (sin foto)</text>
+  <text x="48" y="580" fill="#7db4ca" font-family="SF Pro Text, Arial" font-size="22">Nombre, apellidos y documento</text>
+
+  <rect x="26" y="636" width="848" height="720" rx="34" fill="#0f2346b0" stroke="#8cd9ff44"/>
+  <text x="48" y="690" fill="#cfeeff" font-family="SF Pro Text, Arial" font-size="28" font-weight="700">Panel de trabajo</text>
+
+  <rect x="48" y="718" width="804" height="100" rx="22" fill="#ffffff10" stroke="#94ddff45"/>
+  <text x="72" y="774" fill="#96c6dd" font-family="SF Pro Text, Arial" font-size="24">Buscar por DNI, nombre o token</text>
+
+  <rect x="48" y="842" width="388" height="210" rx="24" fill="#ffffff0f" stroke="#8fd8ff3f"/>
+  <text x="72" y="894" fill="#dff6ff" font-family="SF Pro Text, Arial" font-size="28" font-weight="700">Comparencencia</text>
+  <text x="72" y="936" fill="#7fb1c8" font-family="SF Pro Text, Arial" font-size="22">Estado: pendiente</text>
+  <rect x="72" y="968" width="176" height="58" rx="20" fill="url(#cta)"/>
+  <text x="122" y="1004" fill="#033346" font-family="SF Pro Text, Arial" font-size="24" font-weight="700">Abrir</text>
+
+  <rect x="464" y="842" width="388" height="210" rx="24" fill="#ffffff0f" stroke="#8fd8ff3f"/>
+  <text x="488" y="894" fill="#dff6ff" font-family="SF Pro Text, Arial" font-size="28" font-weight="700">Inbox</text>
+  <text x="488" y="936" fill="#7fb1c8" font-family="SF Pro Text, Arial" font-size="22">Último envío: 13:21</text>
+  <rect x="488" y="968" width="252" height="58" rx="20" fill="#64d9ff24" stroke="#72ecff70"/>
+  <text x="534" y="1004" fill="#a0f6ff" font-family="SF Pro Text, Arial" font-size="24" font-weight="700">Ver historial</text>
+
+  <rect x="48" y="1076" width="804" height="244" rx="24" fill="#ffffff0f" stroke="#8fd8ff3f"/>
+  <text x="72" y="1128" fill="#dff6ff" font-family="SF Pro Text, Arial" font-size="28" font-weight="700">Checklist antes de exportar</text>
+  <text x="72" y="1172" fill="#8cbdd2" font-family="SF Pro Text, Arial" font-size="23">✓ Bundle completo</text>
+  <text x="72" y="1206" fill="#8cbdd2" font-family="SF Pro Text, Arial" font-size="23">✓ 3 filiaciones validadas</text>
+  <text x="72" y="1240" fill="#8cbdd2" font-family="SF Pro Text, Arial" font-size="23">✓ Campos críticos cumplimentados</text>
+
+  <rect x="26" y="1390" width="848" height="184" rx="44" fill="#ffffff12" stroke="#bcf0ff54"/>
+  <rect x="66" y="1424" width="170" height="116" rx="34" fill="#87d8f533"/><text x="120" y="1496" fill="#eafdff" font-size="56">◎</text>
+  <rect x="366" y="1414" width="170" height="128" rx="38" fill="url(#cta)"/><text x="433" y="1493" fill="#042d3c" font-size="58">＋</text>
+  <rect x="664" y="1424" width="170" height="116" rx="34" fill="#87d8f533"/><text x="728" y="1496" fill="#eafdff" font-size="56">☁</text>
+
+  <text x="40" y="1578" fill="#6fa6c3" font-family="SF Pro Text, Arial" font-size="20">Propuesta UX v2: más jerarquía visual, acciones claras y menos ruido en pantalla.</text>
+</svg>
